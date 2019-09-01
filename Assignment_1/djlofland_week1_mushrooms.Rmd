@@ -1,0 +1,151 @@
+---
+title: "DATA 607 Assignment 1"
+subtitle: "(Mushroom Data)"
+author: 'Donny Lofland'
+date: '9/01/2019'
+output:
+  html_document:
+    df_print: paged
+  pdf_document:
+    extra_dependencies:
+    - geometry
+    - multicol
+    - multirow
+---
+
+## Instructions
+> Very often, we’re tasked with taking data in one form and transforming it for easier downstream analysis. We will spend several weeks in this course on tidying and transformation operations. Some of this work could be done in SQL or R (or Python or...). Here, you are asked to use R—you may use base functions or packages as you like.
+
+> Mushrooms Dataset. A famous—if slightly moldy—dataset about mushrooms can be found in the UCI repository here: https://archive.ics.uci.edu/ml/datasets/Mushroom. The fact that this is such a well-known dataset in the data science community makes it a good dataset to use for comparative benchmarking. For example, if someone was working to build a better decision tree algorithm (or other predictive classifier) to analyze categorical data, this dataset could be useful. A typical problem (which is beyond the scope of this assignment!) is to answer the question, “Which other attribute or attributes are the best predictors of whether a particular mushroom is poisonous or edible?”
+
+> Your task is to study the dataset and the associated description of the data (i.e. “data dictionary”). You may need to look around a bit, but it’s there! You should take the data, and create a data frame with a subset of the columns in the dataset. You should include the column that indicates edible or poisonous and three or four other columns. You should also add meaningful column names and replace the abbreviations used in the data—for example, in the appropriate column, “e” might become “edible.” Your deliverable is the R code to perform these transformation tasks.
+
+
+## Load necessary R Libraries
+```{r setup, include=TRUE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
+library(tinytex)
+library(stringr)
+library(XML)
+library(plyr)
+library(tidyverse)
+```
+
+## Check read_csv() assumed column types
+> Only do this once since it requires an Internet connection and reading from the source data file
+
+```{r check_column_types, eval=TRUE}
+spec_csv("https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/agaricus-lepiota.data", col_names = FALSE)
+```
+
+> Note that we will need to override the default column type for bruises? (Column 5) and gill-attachment (column 7) since readr's auto detection with read_csv is gets those wrong
+
+## Load Mushroom data and Set Column Names
+```{r load_data, eval=TRUE}
+# Check if we have a locally cached copy of the mushroom data.  If not, then download and save a copy.  If we do find a local copy, then use that and don't download it again from the remote URL.
+
+local_fn <- "agaricus-lepiota.data"
+remote_url <- "https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/agaricus-lepiota.data"
+
+if(!file.exists(local_fn)) {
+  msg <- 'Locally cached copy of data file not found ... downloading from remote URL and saving locally ...'
+  download.file(remote_url, local_fn, method="auto")
+} else {
+  msg <- 'Locally cached copy of data file found ... using it'
+}
+
+print(msg)
+
+# Purge mush, just in case it's hanging out from previous analysis
+rm(mush)
+
+# Use readr to load a local CSV data into a table
+# we provide override types for parsing the bruises and gill_attachment columns
+mush <- read_csv("agaricus-lepiota.data",
+               col_names = FALSE,
+               cols(
+                 X5 = col_character(),
+                 X7 = col_character()
+               )
+      )
+
+# set column names using the names() function
+names(mush) <- c("Edbl", "C_Sh", "C_Sur", "C_Col", "Bruises", "Odor", "G_Attach",
+                 "Gill_Spacing", "Gill_Size", "Gill_Color", "Stalk_Shape", "Stalk_Root", 
+                 "Stalk_Surf_Above", "Stalk_Surf_Below", "Stalk_Color_above", "Stalk_Color_Below",
+                 "Veil_Type", "Veil_color", "Ring_Number", "Ring_Type", "Spore_Print", "Population",
+                 "Habitat")
+
+mush
+```
+
+## Select our columns of interest and rename them
+```{r select_columns, eval=TRUE}
+# Grab only the Edbl, Cap characteristics, and Gill Attach (boolean) columns
+mush <- mush[, c(1,2,3,4,7)]
+
+# rename using colnames() - just to demostrate another way of adjusting column names
+colnames(mush) <- c("Edible","Cap_Shape","Cap_Surface","Cap_Color","Gill_Attach")
+
+mush
+```
+
+## Verify data values in each column
+```{r}
+# First, lets confirm the values found in each column (compare against expected values from docs)
+unique(mush$Edible)
+unique(mush$Cap_Shape)
+unique(mush$Cap_Surface)
+unique(mush$Cap_Color)
+unique(mush$Gill_Attach)
+```
+
+## Transform column values to be Human readable
+### (try different approaches for replacing values)
+```{r transform_data, eval=TRUE}
+
+# Simple ifelse replacement
+# Edible: edible=e, poisonous=p
+mush$Edible <- ifelse(str_detect(mush$Edible, "e") == TRUE, "Edible", "Poisonous")
+
+# dplyr  using mutate and fct_recode - note that we will convert the Cap_Shape column to a factor
+# Cap_Shape: bell=b, conical=c, convex=x, flat=f, knobbed=k, sunken=s
+mush$Cap_Shape <- factor(mush$Cap_Shape)
+print(levels(mush$Cap_Shape))
+
+mush <- mush %>%  
+  mutate(Cap_Shape = fct_recode(Cap_Shape,
+    "Bell" = "b",
+    "Conical" = "c",
+    "Convex" = "x",
+    "Flat" = "f",
+    "Knobbed" = "k",
+    "Sunken" = "s"
+  )) 
+
+# plyr revalue()
+# Gill_Attach: attached=a, descending=d, free=f, notched=n
+revalue(mush$Gill_Attach, c("a" = "Attached", "f" = "Descending", "f" = "Free", "n" = "Notched")) -> mush$Gill_Attach
+
+# Cap_Surface: fibrous=f, grooves=g, scaly=y, smooth=s
+revalue(mush$Cap_Surface, c("f" = "fibrous", "g" = "Grooves", "y" = "Scaly", "s" = "Smooth")) -> mush$Cap_Surface
+
+# Use apply() to map a function that replaces the letter with a word
+# Cap_Color: brown=n, buff=b, cinnamon=c, gray=g, green=r, pink=p, purple=u, red=e, white=w, yellow=y
+transform_color <- function(code) {
+  switch(code, 
+         "n"="Brown", "b"="Buff", "c"="Cinnamon", "g"="Gray", "r"="Green", 
+         "p"="Pink", "u"="Purple", "e"="Red", "w"="White", "y"="Yellow")
+}
+
+mush <- as_tibble(mush)
+mush$Cap_Color <- sapply(mush$Cap_Color, transform_color)
+
+mush
+```
+> Note that Cap_Shape is a factor while the other columns remain as character vectors
+
+## References
+
+- Dua, D. and Graff, C. (2019). UCI Machine Learning Repository [http://archive.ics.uci.edu/ml]. Irvine, CA: University of California, School of Information and Computer Science.
+- Mushroom records drawn from The Audubon Society Field Guide to North American Mushrooms (1981). G. H. Lincoff (Pres.), New York: Alfred A. Knopf 

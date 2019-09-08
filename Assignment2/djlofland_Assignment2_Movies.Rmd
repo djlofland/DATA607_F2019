@@ -20,7 +20,7 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Source files: [https://github.com/djlofland/DATA607_F2019/tree/master/Homework2](https://github.com/djlofland/DATA607_F2019/tree/master/Homework2)
+Source files: [https://github.com/djlofland/DATA607_F2019/tree/master/Assignment2](https://github.com/djlofland/DATA607_F2019/tree/master/Assignment2)
 
 # Instructions
 

@@ -1,0 +1,167 @@
+---
+title: "DATA 607 Assignment 3"
+subtitle: "Processing Text"
+author: 'Donny Lofland'
+date: '9/14/2019'
+output:
+  html_document:
+    theme: cerulean
+    highlight: pygments
+    css: ./lab.css
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+
+Source files: [https://github.com/djlofland/DATA607_F2019/tree/master/Assignment3](https://github.com/djlofland/DATA607_F2019/tree/master/Assignment3)
+
+## Chapter 3 Questions
+
+Please deliver links to an R Markdown file (in GitHub and rpubs.com) with solutions to problems 3 and 4 from chapter 8 of Automated Data Collection in R.  Problem 9 is extra credit.  You may work in a small group, but please submit separately with names of all group participants in your submission.
+
+Here is the referenced code for the introductory example in #3:
+
+```{r load_data}
+raw.data <-"555-1239Moe Szyslak(636) 555-0113Burns, C. Montgomery555-6542Rev. Timothy Lovejoy555 8904Ned Flanders636-555-3226Simpson, Homer5553642Dr. Julius Hibbert"
+```
+
+## Question 3
+
+Copy the introductory example. The vector name stores the extracted names.
+     R> name
+     [1] "Moe Szyslak"       "Burns, C. Montgomery" "Rev. Timothy Lovejoy"
+     [4] "Ned Flanders"      "Simpson, Homer"       "Dr. Julius Hibbert"
+     
+(a) Use the tools of this chapter to rearrange the vector so that all elements conform to the standard first_name last_name.
+
+```{r}
+raw.data <-"555-1239Moe Szyslak(636) 555-0113Burns, C. Montgomery555-6542Rev. Timothy Lovejoy555 8904Ned Flanders636-555-3226Simpson, Homer5553642Dr. Julius Hibbert"
+
+# Example code from Chapter:
+names <- unlist(str_extract_all(raw.data, "[[:alpha:]., ]{2,}"))
+count <- length(names)
+
+# Loop thru each name (note we could probably crate function and apply it to the names list with lapply())
+for (i in 1:count) {
+  # check if there is comma and assume it's already in last, first
+  if (!str_detect(names[i], ',')) {
+    # str_match() will pull out the backref's for us
+    name_parts <- str_match(names[i], '^(.*)[[:space:]]+(\\w+)$')
+    names[i] <- paste(str_trim(name_parts[3]), ', ', str_trim(name_parts[2]), sep="")
+  }
+}
+
+print(names)
+```
+
+> if a name has a comma, I'm assuming it's already in last, first.  Note that this would be a poor assumption with a larger unknwn data set and a name might have credentials as end, eg "Jane Doe, MD".  If so, we'd change our regex to look for titles
+
+(b) Construct a logical vector indicating whether a character has a title (i.e., Rev. and Dr.).
+
+```{r}
+raw.data <-"555-1239Moe Szyslak(636) 555-0113Burns, C. Montgomery555-6542Rev. Timothy Lovejoy555 8904Ned Flanders636-555-3226Simpson, Homer5553642Dr. Julius Hibbert"
+
+# Example code from Chapter:
+names <- unlist(str_extract_all(raw.data, "[[:alpha:]., ]{2,}"))
+
+# use str_detect() to return TRUE/FALSE per name
+title <- str_detect(names, '[[:alpha:]]{2,}\\.[[:space:]]?')
+title
+```
+
+> I look for a simple "aa. " pattern anywhere in the string.  This prevents catching initials, e.g. "C. Mont...".  I didn't restrict case as we might have see "DR. Julius" or "Dr. Julius".  This solution handles cases: "Dr. Julius Hibble" and "Hibble, Dr. Julius", "Dr.Julius Hibble" and "Julius Hibble, Dr.".
+
+(c) Construct a logical vector indicating whether a character has a second name.
+
+```{r}
+raw.data <-"555-1239Moe Szyslak(636) 555-0113Burns, C. Montgomery555-6542Rev. Timothy Lovejoy555 8904Ned Flanders636-555-3226Simpson, Homer5553642Dr. Julius Hibbert"
+
+# Example code from Chapter:
+names <- unlist(str_extract_all(raw.data, "[[:alpha:]., ]{2,}"))
+
+# Find all occurances where there are 3 "names".  Note a "name" might also be a title, we'll filter that out in a second step 
+three_names <- str_detect(names, '(\\w+)[ ,.]+(\\w+)[ .,]+(\\w+)')
+
+# filter out titles (we built the title vector in the above problem)
+second_name <- three_names & !title
+second_name
+```
+
+> I'm assuming by "second name" the question is trying to trap the "C. Montgomery" entry and that "second name" isn't implying "last name".  
+
+## Question 4
+
+Describe the types of strings that conform to the following regular expressions and construct an example that is matched by the regular expression.
+
+(a) [0-9]+\\$
+
+```{r}
+example <- c('abc 123$', '123$', '99.99$', '99.99 $')
+str_detect(example, '[0-9]+\\$')
+```
+
+> Looks for a **sequence of numbers immediately followed by a dollar sign**.
+
+(b) \\b[a-z]{1,4}\\b
+
+```{r}
+example <- c('a b ', 'abcd', ' abcde abcd')
+str_detect(example, '\\b[a-z]{1,4}\\b')
+```
+
+> Looks for the presense of a **word** with **1, 2, 3 or 4 characters in length**.  
+
+(c) .*?\\.txt$
+
+```{r}
+example <- c('filename.txt', 'file name.txt', 'f.txt', '.txt')
+str_detect(example, '.*?\\.txt$')
+```
+
+> Checks if the **string ends with ".txt"**.  Useful if pattern matching for file names.  I would have used **'.+\\.txt'** since '.txt' is typically a hidden file and not a text file.  Note that the ? is unnecessary as '.*' matchs 0 or more times which is already "optional".
+
+(d) \\d{2}/\\d{2}/\\d{4}
+
+```{r}
+example <- c('12/24/1969', 'My birthday is 12/24/1969, yay!')
+str_detect(example, '\\d{2}/\\d{2}/\\d{4}')
+```
+
+> **Matches dates in MM/DD/YYYY format** found anywhere in the string.  Note that this requires 2 digits in month and day and 4 digits in year, so wouldn't match '1/1/19'.  To be more flexible, we might use **'\\d{2}/\\d{2}/(\\d{2}\\b|\\d{4}\\b)'**. 
+
+(e) <(.+?)>.+?</\\1>
+
+```{r}
+example <- c('<p>I work</p>', '<DIV>I work</DIV>', '<p style="a">I break</p>', '<DIV>I break</div>')
+str_detect(example, '<(.+?)>.+?</\\1>')
+```
+
+> This matches **basic html and xml tag formats**.  As written, it'll fail if we add any extra info in the tag, which is pretty standard in HTML.  As written, it's also case sensitive.  A better implementaion might be: **str_detect(example, regex('<(.+) ?(.*)?>.+?</\\1>', ignore_case = T))**.  Also, note that our book references an older method ignore.case() which doesn't exist anymore.  We now need to use  **regex('', ignore_case=T)** to accomplish the same thing.
+
+
+## Question 9
+
+Consider the string (5-3)ˆ2=5ˆ2-2*5*3+3ˆ2 conforms to the binomial theorem. We would like to extract the formula in the string. To do so we write the regular expression [ˆ0-9=+*()]+. Explain why this fails and correct the expression.
+$$Example:\ \ (x+y)^4=x^4+4x^3y+6x^2y^2+4xy^3+y^4$$
+
+
+```{r}
+example <- c('(5-3)ˆ2=5ˆ2-2*5*3+3ˆ2')
+str_extract(example, '[ˆ0-9=+*()]+')
+
+example <- c('(5-3)ˆ2=5ˆ2-2*5*3+3ˆ2')
+str_extract(example, '[0-9=+*()\\-\\ˆ]+')
+```
+
+> In the current regex, the ^ will mean "starts with" not exponent and the '-' means "range" not the literal minus sign.  We need to escape the ^ and add an escaped -.  The correct regex would be, **'[0-9=+*()\\\\-\\\\ˆ]+'**.  
+
+## References
+
+- Binomial Theorem: https://en.wikipedia.org/wiki/Binomial_theorem

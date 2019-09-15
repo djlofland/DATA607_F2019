@@ -1633,20 +1633,21 @@ div.tocify {
 
 
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(tidyverse)</a></code></pre></div>
-<pre><code>## ── Attaching packages ───────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
+<pre><code>## ── Attaching packages ──────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
 <pre><code>## ✔ ggplot2 3.2.1     ✔ purrr   0.3.2
 ## ✔ tibble  2.1.3     ✔ dplyr   0.8.3
 ## ✔ tidyr   0.8.3     ✔ stringr 1.4.0
 ## ✔ readr   1.3.1     ✔ forcats 0.4.0</code></pre>
-<pre><code>## ── Conflicts ──────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+<pre><code>## ── Conflicts ─────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
 ## ✖ dplyr::filter() masks stats::filter()
 ## ✖ dplyr::lag()    masks stats::lag()</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw">library</span>(stringr)</a></code></pre></div>
 <p>Source files: <a href="https://github.com/djlofland/DATA607_F2019/tree/master/Assignment3">https://github.com/djlofland/DATA607_F2019/tree/master/Assignment3</a></p>
 <div id="chapter-3-questions" class="section level2">
 <h2>Chapter 3 Questions</h2>
 <p>Please deliver links to an R Markdown file (in GitHub and rpubs.com) with solutions to problems 3 and 4 from chapter 8 of Automated Data Collection in R. Problem 9 is extra credit. You may work in a small group, but please submit separately with names of all group participants in your submission.</p>
 <p>Here is the referenced code for the introductory example in #3:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">raw.data &lt;-<span class="st">&quot;555-1239Moe Szyslak(636) 555-0113Burns, C. Montgomery555-6542Rev. Timothy Lovejoy555 8904Ned Flanders636-555-3226Simpson, Homer5553642Dr. Julius Hibbert&quot;</span></a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">raw.data &lt;-<span class="st">&quot;555-1239Moe Szyslak(636) 555-0113Burns, C. Montgomery555-6542Rev. Timothy Lovejoy555 8904Ned Flanders636-555-3226Simpson, Homer5553642Dr. Julius Hibbert&quot;</span></a></code></pre></div>
 </div>
 <div id="question-3" class="section level2">
 <h2>Question 3</h2>
@@ -1654,23 +1655,23 @@ div.tocify {
 <ol style="list-style-type: lower-alpha">
 <li>Use the tools of this chapter to rearrange the vector so that all elements conform to the standard first_name last_name.</li>
 </ol>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">raw.data &lt;-<span class="st">&quot;555-1239Moe Szyslak(636) 555-0113Burns, C. Montgomery555-6542Rev. Timothy Lovejoy555 8904Ned Flanders636-555-3226Simpson, Homer5553642Dr. Julius Hibbert&quot;</span></a>
-<a class="sourceLine" id="cb6-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="co"># Example code from Chapter:</span></a>
-<a class="sourceLine" id="cb6-4" data-line-number="4">names &lt;-<span class="st"> </span><span class="kw">unlist</span>(<span class="kw">str_extract_all</span>(raw.data, <span class="st">&quot;[[:alpha:]., ]{2,}&quot;</span>))</a>
-<a class="sourceLine" id="cb6-5" data-line-number="5">count &lt;-<span class="st"> </span><span class="kw">length</span>(names)</a>
-<a class="sourceLine" id="cb6-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb6-7" data-line-number="7"><span class="co"># Loop thru each name (note we could probably crate function and apply it to the names list with lapply())</span></a>
-<a class="sourceLine" id="cb6-8" data-line-number="8"><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span>count) {</a>
-<a class="sourceLine" id="cb6-9" data-line-number="9">  <span class="co"># check if there is comma and assume it's already in last, first</span></a>
-<a class="sourceLine" id="cb6-10" data-line-number="10">  <span class="cf">if</span> (<span class="op">!</span><span class="kw">str_detect</span>(names[i], <span class="st">','</span>)) {</a>
-<a class="sourceLine" id="cb6-11" data-line-number="11">    <span class="co"># str_match() will pull out the backref's for us</span></a>
-<a class="sourceLine" id="cb6-12" data-line-number="12">    name_parts &lt;-<span class="st"> </span><span class="kw">str_match</span>(names[i], <span class="st">'^(.*)[[:space:]]+(</span><span class="ch">\\</span><span class="st">w+)$'</span>)</a>
-<a class="sourceLine" id="cb6-13" data-line-number="13">    names[i] &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="kw">str_trim</span>(name_parts[<span class="dv">3</span>]), <span class="st">', '</span>, <span class="kw">str_trim</span>(name_parts[<span class="dv">2</span>]), <span class="dt">sep=</span><span class="st">&quot;&quot;</span>)</a>
-<a class="sourceLine" id="cb6-14" data-line-number="14">  }</a>
-<a class="sourceLine" id="cb6-15" data-line-number="15">}</a>
-<a class="sourceLine" id="cb6-16" data-line-number="16"></a>
-<a class="sourceLine" id="cb6-17" data-line-number="17"><span class="kw">print</span>(names)</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">raw.data &lt;-<span class="st">&quot;555-1239Moe Szyslak(636) 555-0113Burns, C. Montgomery555-6542Rev. Timothy Lovejoy555 8904Ned Flanders636-555-3226Simpson, Homer5553642Dr. Julius Hibbert&quot;</span></a>
+<a class="sourceLine" id="cb7-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb7-3" data-line-number="3"><span class="co"># Example code from Chapter:</span></a>
+<a class="sourceLine" id="cb7-4" data-line-number="4">names &lt;-<span class="st"> </span><span class="kw">unlist</span>(<span class="kw">str_extract_all</span>(raw.data, <span class="st">&quot;[[:alpha:]., ]{2,}&quot;</span>))</a>
+<a class="sourceLine" id="cb7-5" data-line-number="5">count &lt;-<span class="st"> </span><span class="kw">length</span>(names)</a>
+<a class="sourceLine" id="cb7-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb7-7" data-line-number="7"><span class="co"># Loop thru each name (note we could probably crate function and apply it to the names list with lapply())</span></a>
+<a class="sourceLine" id="cb7-8" data-line-number="8"><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span>count) {</a>
+<a class="sourceLine" id="cb7-9" data-line-number="9">  <span class="co"># check if there is comma and assume it's already in last, first</span></a>
+<a class="sourceLine" id="cb7-10" data-line-number="10">  <span class="cf">if</span> (<span class="op">!</span><span class="kw">str_detect</span>(names[i], <span class="st">','</span>)) {</a>
+<a class="sourceLine" id="cb7-11" data-line-number="11">    <span class="co"># str_match() will pull out the backref's for us</span></a>
+<a class="sourceLine" id="cb7-12" data-line-number="12">    name_parts &lt;-<span class="st"> </span><span class="kw">str_match</span>(names[i], <span class="st">'^(.*)[[:space:]]+(</span><span class="ch">\\</span><span class="st">w+)$'</span>)</a>
+<a class="sourceLine" id="cb7-13" data-line-number="13">    names[i] &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="kw">str_trim</span>(name_parts[<span class="dv">3</span>]), <span class="st">', '</span>, <span class="kw">str_trim</span>(name_parts[<span class="dv">2</span>]), <span class="dt">sep=</span><span class="st">&quot;&quot;</span>)</a>
+<a class="sourceLine" id="cb7-14" data-line-number="14">  }</a>
+<a class="sourceLine" id="cb7-15" data-line-number="15">}</a>
+<a class="sourceLine" id="cb7-16" data-line-number="16"></a>
+<a class="sourceLine" id="cb7-17" data-line-number="17"><span class="kw">print</span>(names)</a></code></pre></div>
 <pre><code>## [1] &quot;Szyslak, Moe&quot;          &quot;Burns, C. Montgomery&quot;  &quot;Lovejoy, Rev. Timothy&quot;
 ## [4] &quot;Flanders, Ned&quot;         &quot;Simpson, Homer&quot;        &quot;Hibbert, Dr. Julius&quot;</code></pre>
 <blockquote>
@@ -1679,14 +1680,14 @@ div.tocify {
 <ol start="2" style="list-style-type: lower-alpha">
 <li>Construct a logical vector indicating whether a character has a title (i.e., Rev. and Dr.).</li>
 </ol>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">raw.data &lt;-<span class="st">&quot;555-1239Moe Szyslak(636) 555-0113Burns, C. Montgomery555-6542Rev. Timothy Lovejoy555 8904Ned Flanders636-555-3226Simpson, Homer5553642Dr. Julius Hibbert&quot;</span></a>
-<a class="sourceLine" id="cb8-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb8-3" data-line-number="3"><span class="co"># Example code from Chapter:</span></a>
-<a class="sourceLine" id="cb8-4" data-line-number="4">names &lt;-<span class="st"> </span><span class="kw">unlist</span>(<span class="kw">str_extract_all</span>(raw.data, <span class="st">&quot;[[:alpha:]., ]{2,}&quot;</span>))</a>
-<a class="sourceLine" id="cb8-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb8-6" data-line-number="6"><span class="co"># use str_detect() to return TRUE/FALSE per name</span></a>
-<a class="sourceLine" id="cb8-7" data-line-number="7">title &lt;-<span class="st"> </span><span class="kw">str_detect</span>(names, <span class="st">'[[:alpha:]]{2,}</span><span class="ch">\\</span><span class="st">.[[:space:]]?'</span>)</a>
-<a class="sourceLine" id="cb8-8" data-line-number="8">title</a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">raw.data &lt;-<span class="st">&quot;555-1239Moe Szyslak(636) 555-0113Burns, C. Montgomery555-6542Rev. Timothy Lovejoy555 8904Ned Flanders636-555-3226Simpson, Homer5553642Dr. Julius Hibbert&quot;</span></a>
+<a class="sourceLine" id="cb9-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb9-3" data-line-number="3"><span class="co"># Example code from Chapter:</span></a>
+<a class="sourceLine" id="cb9-4" data-line-number="4">names &lt;-<span class="st"> </span><span class="kw">unlist</span>(<span class="kw">str_extract_all</span>(raw.data, <span class="st">&quot;[[:alpha:]., ]{2,}&quot;</span>))</a>
+<a class="sourceLine" id="cb9-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb9-6" data-line-number="6"><span class="co"># use str_detect() to return TRUE/FALSE per name</span></a>
+<a class="sourceLine" id="cb9-7" data-line-number="7">title &lt;-<span class="st"> </span><span class="kw">str_detect</span>(names, <span class="st">'[[:alpha:]]{2,}</span><span class="ch">\\</span><span class="st">.[[:space:]]?'</span>)</a>
+<a class="sourceLine" id="cb9-8" data-line-number="8">title</a></code></pre></div>
 <pre><code>## [1] FALSE FALSE  TRUE FALSE FALSE  TRUE</code></pre>
 <blockquote>
 <p>I look for a simple “aa.” pattern anywhere in the string. This prevents catching initials, e.g. “C. Mont…”. I didn’t restrict case as we might have see “DR. Julius” or “Dr. Julius”. This solution handles cases: “Dr. Julius Hibble” and “Hibble, Dr. Julius”, “Dr.Julius Hibble” and “Julius Hibble, Dr.”.</p>
@@ -1694,17 +1695,17 @@ div.tocify {
 <ol start="3" style="list-style-type: lower-alpha">
 <li>Construct a logical vector indicating whether a character has a second name.</li>
 </ol>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1">raw.data &lt;-<span class="st">&quot;555-1239Moe Szyslak(636) 555-0113Burns, C. Montgomery555-6542Rev. Timothy Lovejoy555 8904Ned Flanders636-555-3226Simpson, Homer5553642Dr. Julius Hibbert&quot;</span></a>
-<a class="sourceLine" id="cb10-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb10-3" data-line-number="3"><span class="co"># Example code from Chapter:</span></a>
-<a class="sourceLine" id="cb10-4" data-line-number="4">names &lt;-<span class="st"> </span><span class="kw">unlist</span>(<span class="kw">str_extract_all</span>(raw.data, <span class="st">&quot;[[:alpha:]., ]{2,}&quot;</span>))</a>
-<a class="sourceLine" id="cb10-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb10-6" data-line-number="6"><span class="co"># Find all occurances where there are 3 &quot;names&quot;.  Note a &quot;name&quot; might also be a title, we'll filter that out in a second step </span></a>
-<a class="sourceLine" id="cb10-7" data-line-number="7">three_names &lt;-<span class="st"> </span><span class="kw">str_detect</span>(names, <span class="st">'(</span><span class="ch">\\</span><span class="st">w+)[ ,.]+(</span><span class="ch">\\</span><span class="st">w+)[ .,]+(</span><span class="ch">\\</span><span class="st">w+)'</span>)</a>
-<a class="sourceLine" id="cb10-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb10-9" data-line-number="9"><span class="co"># filter out titles (we built the title vector in the above problem)</span></a>
-<a class="sourceLine" id="cb10-10" data-line-number="10">second_name &lt;-<span class="st"> </span>three_names <span class="op">&amp;</span><span class="st"> </span><span class="op">!</span>title</a>
-<a class="sourceLine" id="cb10-11" data-line-number="11">second_name</a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">raw.data &lt;-<span class="st">&quot;555-1239Moe Szyslak(636) 555-0113Burns, C. Montgomery555-6542Rev. Timothy Lovejoy555 8904Ned Flanders636-555-3226Simpson, Homer5553642Dr. Julius Hibbert&quot;</span></a>
+<a class="sourceLine" id="cb11-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb11-3" data-line-number="3"><span class="co"># Example code from Chapter:</span></a>
+<a class="sourceLine" id="cb11-4" data-line-number="4">names &lt;-<span class="st"> </span><span class="kw">unlist</span>(<span class="kw">str_extract_all</span>(raw.data, <span class="st">&quot;[[:alpha:]., ]{2,}&quot;</span>))</a>
+<a class="sourceLine" id="cb11-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb11-6" data-line-number="6"><span class="co"># Find all occurances where there are 3 &quot;names&quot;.  Note a &quot;name&quot; might also be a title, we'll filter that out in a second step </span></a>
+<a class="sourceLine" id="cb11-7" data-line-number="7">three_names &lt;-<span class="st"> </span><span class="kw">str_detect</span>(names, <span class="st">'(</span><span class="ch">\\</span><span class="st">w+)[ ,.]+(</span><span class="ch">\\</span><span class="st">w+)[ .,]+(</span><span class="ch">\\</span><span class="st">w+)'</span>)</a>
+<a class="sourceLine" id="cb11-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb11-9" data-line-number="9"><span class="co"># filter out titles (we built the title vector in the above problem)</span></a>
+<a class="sourceLine" id="cb11-10" data-line-number="10">second_name &lt;-<span class="st"> </span>three_names <span class="op">&amp;</span><span class="st"> </span><span class="op">!</span>title</a>
+<a class="sourceLine" id="cb11-11" data-line-number="11">second_name</a></code></pre></div>
 <pre><code>## [1] FALSE  TRUE FALSE FALSE FALSE FALSE</code></pre>
 <blockquote>
 <p>I’m assuming by “second name” the question is trying to trap the “C. Montgomery” entry and that “second name” isn’t implying “last name”.</p>
@@ -1716,8 +1717,8 @@ div.tocify {
 <ol style="list-style-type: lower-alpha">
 <li>[0-9]+\$</li>
 </ol>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">example &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">'abc 123$'</span>, <span class="st">'123$'</span>, <span class="st">'99.99$'</span>, <span class="st">'99.99 $'</span>)</a>
-<a class="sourceLine" id="cb12-2" data-line-number="2"><span class="kw">str_detect</span>(example, <span class="st">'[0-9]+</span><span class="ch">\\</span><span class="st">$'</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1">example &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">'abc 123$'</span>, <span class="st">'123$'</span>, <span class="st">'99.99$'</span>, <span class="st">'99.99 $'</span>)</a>
+<a class="sourceLine" id="cb13-2" data-line-number="2"><span class="kw">str_detect</span>(example, <span class="st">'[0-9]+</span><span class="ch">\\</span><span class="st">$'</span>)</a></code></pre></div>
 <pre><code>## [1]  TRUE  TRUE  TRUE FALSE</code></pre>
 <blockquote>
 <p>Looks for a <strong>sequence of numbers immediately followed by a dollar sign</strong>.</p>
@@ -1725,8 +1726,8 @@ div.tocify {
 <ol start="2" style="list-style-type: lower-alpha">
 <li>\b[a-z]{1,4}\b</li>
 </ol>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1">example &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">'a b '</span>, <span class="st">'abcd'</span>, <span class="st">' abcde abcd'</span>)</a>
-<a class="sourceLine" id="cb14-2" data-line-number="2"><span class="kw">str_detect</span>(example, <span class="st">'</span><span class="ch">\\</span><span class="st">b[a-z]{1,4}</span><span class="ch">\\</span><span class="st">b'</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1">example &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">'a b '</span>, <span class="st">'abcd'</span>, <span class="st">' abcde abcd'</span>)</a>
+<a class="sourceLine" id="cb15-2" data-line-number="2"><span class="kw">str_detect</span>(example, <span class="st">'</span><span class="ch">\\</span><span class="st">b[a-z]{1,4}</span><span class="ch">\\</span><span class="st">b'</span>)</a></code></pre></div>
 <pre><code>## [1] TRUE TRUE TRUE</code></pre>
 <blockquote>
 <p>Looks for the presense of a <strong>word</strong> with <strong>1, 2, 3 or 4 characters in length</strong>.</p>
@@ -1734,8 +1735,8 @@ div.tocify {
 <ol start="3" style="list-style-type: lower-alpha">
 <li>.*?\.txt$</li>
 </ol>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1">example &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">'filename.txt'</span>, <span class="st">'file name.txt'</span>, <span class="st">'f.txt'</span>, <span class="st">'.txt'</span>)</a>
-<a class="sourceLine" id="cb16-2" data-line-number="2"><span class="kw">str_detect</span>(example, <span class="st">'.*?</span><span class="ch">\\</span><span class="st">.txt$'</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1">example &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">'filename.txt'</span>, <span class="st">'file name.txt'</span>, <span class="st">'f.txt'</span>, <span class="st">'.txt'</span>)</a>
+<a class="sourceLine" id="cb17-2" data-line-number="2"><span class="kw">str_detect</span>(example, <span class="st">'.*?</span><span class="ch">\\</span><span class="st">.txt$'</span>)</a></code></pre></div>
 <pre><code>## [1] TRUE TRUE TRUE TRUE</code></pre>
 <blockquote>
 <p>Checks if the <strong>string ends with “.txt”</strong>. Useful if pattern matching for file names. I would have used <strong>‘.+\.txt’</strong> since ‘.txt’ is typically a hidden file and not a text file. Note that the ? is unnecessary as ’.*’ matchs 0 or more times which is already “optional”.</p>
@@ -1743,8 +1744,8 @@ div.tocify {
 <ol start="4" style="list-style-type: lower-alpha">
 <li>\d{2}/\d{2}/\d{4}</li>
 </ol>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1">example &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">'12/24/1969'</span>, <span class="st">'My birthday is 12/24/1969, yay!'</span>)</a>
-<a class="sourceLine" id="cb18-2" data-line-number="2"><span class="kw">str_detect</span>(example, <span class="st">'</span><span class="ch">\\</span><span class="st">d{2}/</span><span class="ch">\\</span><span class="st">d{2}/</span><span class="ch">\\</span><span class="st">d{4}'</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1">example &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">'12/24/1969'</span>, <span class="st">'My birthday is 12/24/1969, yay!'</span>)</a>
+<a class="sourceLine" id="cb19-2" data-line-number="2"><span class="kw">str_detect</span>(example, <span class="st">'</span><span class="ch">\\</span><span class="st">d{2}/</span><span class="ch">\\</span><span class="st">d{2}/</span><span class="ch">\\</span><span class="st">d{4}'</span>)</a></code></pre></div>
 <pre><code>## [1] TRUE TRUE</code></pre>
 <blockquote>
 <p><strong>Matches dates in MM/DD/YYYY format</strong> found anywhere in the string. Note that this requires 2 digits in month and day and 4 digits in year, so wouldn’t match ‘1/1/19’. To be more flexible, we might use <strong>‘\d{2}/\d{2}/(\d{2}\b|\d{4}\b)’</strong>.</p>
@@ -1752,8 +1753,8 @@ div.tocify {
 <ol start="5" style="list-style-type: lower-alpha">
 <li>&lt;(.+?)&gt;.+?&lt;/\1&gt;</li>
 </ol>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1">example &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">'&lt;p&gt;I work&lt;/p&gt;'</span>, <span class="st">'&lt;DIV&gt;I work&lt;/DIV&gt;'</span>, <span class="st">'&lt;p style=&quot;a&quot;&gt;I break&lt;/p&gt;'</span>, <span class="st">'&lt;DIV&gt;I break&lt;/div&gt;'</span>)</a>
-<a class="sourceLine" id="cb20-2" data-line-number="2"><span class="kw">str_detect</span>(example, <span class="st">'&lt;(.+?)&gt;.+?&lt;/</span><span class="ch">\\</span><span class="st">1&gt;'</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1">example &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">'&lt;p&gt;I work&lt;/p&gt;'</span>, <span class="st">'&lt;DIV&gt;I work&lt;/DIV&gt;'</span>, <span class="st">'&lt;p style=&quot;a&quot;&gt;I break&lt;/p&gt;'</span>, <span class="st">'&lt;DIV&gt;I break&lt;/div&gt;'</span>)</a>
+<a class="sourceLine" id="cb21-2" data-line-number="2"><span class="kw">str_detect</span>(example, <span class="st">'&lt;(.+?)&gt;.+?&lt;/</span><span class="ch">\\</span><span class="st">1&gt;'</span>)</a></code></pre></div>
 <pre><code>## [1]  TRUE  TRUE FALSE FALSE</code></pre>
 <blockquote>
 <p>This matches <strong>basic html and xml tag formats</strong>. As written, it’ll fail if we add any extra info in the tag, which is pretty standard in HTML. As written, it’s also case sensitive. A better implementaion might be: **str_detect(example, regex(’&lt;(.+) ?(.*)?&gt;.+?&lt;/\1&gt;‘, ignore_case = T))<strong>. Also, note that our book references an older method ignore.case() which doesn’t exist anymore. We now need to use </strong>regex(’’, ignore_case=T)** to accomplish the same thing.</p>
@@ -1762,15 +1763,30 @@ div.tocify {
 <div id="question-9" class="section level2">
 <h2>Question 9</h2>
 <p>Consider the string (5-3)ˆ2=5ˆ2-2<em>5</em>3+3ˆ2 conforms to the binomial theorem. We would like to extract the formula in the string. To do so we write the regular expression [ˆ0-9=+*()]+. Explain why this fails and correct the expression. <span class="math display">\[Example:\ \ (x+y)^4=x^4+4x^3y+6x^2y^2+4xy^3+y^4\]</span></p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1">example &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">'(5-3)ˆ2=5ˆ2-2*5*3+3ˆ2'</span>)</a>
-<a class="sourceLine" id="cb22-2" data-line-number="2"><span class="kw">str_extract</span>(example, <span class="st">'[ˆ0-9=+*()]+'</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1">example &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">'(5-3)ˆ2=5ˆ2-2*5*3+3ˆ2'</span>)</a>
+<a class="sourceLine" id="cb23-2" data-line-number="2"><span class="kw">str_extract</span>(example, <span class="st">'[ˆ0-9=+*()]+'</span>)</a></code></pre></div>
 <pre><code>## [1] &quot;(5&quot;</code></pre>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" data-line-number="1">example &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">'(5-3)ˆ2=5ˆ2-2*5*3+3ˆ2'</span>)</a>
-<a class="sourceLine" id="cb24-2" data-line-number="2"><span class="kw">str_extract</span>(example, <span class="st">'[0-9=+*()</span><span class="ch">\\</span><span class="st">-</span><span class="ch">\\</span><span class="st">ˆ]+'</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1">example &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">'(5-3)ˆ2=5ˆ2-2*5*3+3ˆ2'</span>)</a>
+<a class="sourceLine" id="cb25-2" data-line-number="2"><span class="kw">str_extract</span>(example, <span class="st">'[0-9=+*()</span><span class="ch">\\</span><span class="st">-</span><span class="ch">\\</span><span class="st">ˆ]+'</span>)</a></code></pre></div>
 <pre><code>## [1] &quot;(5-3)ˆ2=5ˆ2-2*5*3+3ˆ2&quot;</code></pre>
 <blockquote>
 <p>In the current regex, the ^ will mean “starts with” not exponent and the ‘-’ means “range” not the literal minus sign. We need to escape the ^ and add an escaped -. The correct regex would be, <strong>‘[0-9=+*()\\-\\ˆ]+’</strong>.</p>
 </blockquote>
+</div>
+<div id="bonus-question" class="section level2">
+<h2>Bonus Question</h2>
+<p>The following code hides a secret message. Crack it with R and regular expressions. <em>Hint: Some of the characters are more revealing than others!</em></p>
+<blockquote>
+<p>clcopCow1zmstc0d87wnkig70vdicpNuggvhryn92Gjuwczi8hqrfpRxs5Aj5 dwpn0TanwoUwisdij7Lj8kpf03AT5Idr3coc0bt7yczjat0aootj55t3Nj3ne 6c4Sfek.r1w1YwwojigOd6vrfUrbz2.2bkAnbhzgv4R9i05zEcrop.wAgnb.S qoU65fPa1otfb7wEm24k6t3sR9zqe5fy89n6Nd5t9kc4fE905gmc4Rgxo5nhDk!gr</p>
+</blockquote>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" data-line-number="1">code &lt;-<span class="st"> 'clcopCow1zmstc0d87wnkig7OvdicpNuggvhryn92Gjuwczi8hqrfpRxs5Aj5dwpn0TanwoUwisdij7Lj8kpf03AT5Idr3cocObt7yczjat0aootj55t3Nj3ne6c4Sfek.r1w1YwwojigOd6vrfUrbz2.2bkAnbhzgv4R9i05zEcrop.wAgnb.SqoU65fPa1otfb7wEm24k6t3sR9zqe5fy89n6Nd5t9kc4fE905gmc4Rgxo5nhDk!gr'</span></a>
+<a class="sourceLine" id="cb27-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb27-3" data-line-number="3">letters &lt;-<span class="st"> </span><span class="kw">str_match_all</span>(code, <span class="kw">regex</span>(<span class="st">'[A-Z]'</span>))</a>
+<a class="sourceLine" id="cb27-4" data-line-number="4">message &lt;-<span class="st"> </span><span class="kw">toString</span>(letters[[<span class="dv">1</span>]])</a>
+<a class="sourceLine" id="cb27-5" data-line-number="5">message &lt;-<span class="st"> </span>message <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">str_replace_all</span>(<span class="st">', '</span>, <span class="st">''</span>)</a>
+<a class="sourceLine" id="cb27-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb27-7" data-line-number="7">message</a></code></pre></div>
+<pre><code>## [1] &quot;CONGRATULATIONSYOUAREASUPERNERD&quot;</code></pre>
 </div>
 <div id="references" class="section level2">
 <h2>References</h2>

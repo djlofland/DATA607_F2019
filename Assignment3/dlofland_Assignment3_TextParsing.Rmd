@@ -18,6 +18,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 library(tidyverse)
+library(stringr)
 ```
 
 Source files: [https://github.com/djlofland/DATA607_F2019/tree/master/Assignment3](https://github.com/djlofland/DATA607_F2019/tree/master/Assignment3)
@@ -161,6 +162,26 @@ str_extract(example, '[0-9=+*()\\-\\ˆ]+')
 ```
 
 > In the current regex, the ^ will mean "starts with" not exponent and the '-' means "range" not the literal minus sign.  We need to escape the ^ and add an escaped -.  The correct regex would be, **'[0-9=+*()\\\\-\\\\ˆ]+'**.  
+
+## Bonus Question
+
+The following code hides a secret message.  Crack it with R and regular expressions.  *Hint: Some of the characters are more revealing than others!*
+
+> clcopCow1zmstc0d87wnkig70vdicpNuggvhryn92Gjuwczi8hqrfpRxs5Aj5
+dwpn0TanwoUwisdij7Lj8kpf03AT5Idr3coc0bt7yczjat0aootj55t3Nj3ne
+6c4Sfek.r1w1YwwojigOd6vrfUrbz2.2bkAnbhzgv4R9i05zEcrop.wAgnb.S
+qoU65fPa1otfb7wEm24k6t3sR9zqe5fy89n6Nd5t9kc4fE905gmc4Rgxo5nhDk!gr
+
+```{r}
+code <- 'clcopCow1zmstc0d87wnkig7OvdicpNuggvhryn92Gjuwczi8hqrfpRxs5Aj5dwpn0TanwoUwisdij7Lj8kpf03AT5Idr3cocObt7yczjat0aootj55t3Nj3ne6c4Sfek.r1w1YwwojigOd6vrfUrbz2.2bkAnbhzgv4R9i05zEcrop.wAgnb.SqoU65fPa1otfb7wEm24k6t3sR9zqe5fy89n6Nd5t9kc4fE905gmc4Rgxo5nhDk!gr'
+
+letters <- str_match_all(code, regex('[A-Z]'))
+message <- toString(letters[[1]])
+message <- message %>% str_replace_all(', ', '')
+
+message
+```
+
 
 ## References
 

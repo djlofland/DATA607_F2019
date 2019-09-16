@@ -1,0 +1,210 @@
+---
+title: "DATA 607 Project 1"
+subtitle: "Chess ELO"
+author: 'Donny Lofland'
+date: '9/14/2019'
+output:
+  html_document:
+    theme: cerulean
+    highlight: pygments
+    css: ./lab.css
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(stringr)
+```
+
+Source files: [https://github.com/djlofland/DATA607_F2019/tree/master/Project1](https://github.com/djlofland/DATA607_F2019/tree/master/Project1)
+
+## Project
+
+In this project, you’re given a text file with chess tournament results where the information has some structure. Your
+job is to create an R Markdown file that generates a .CSV file (that could for example be imported into a SQL database)
+with the following information for all of the players:
+
+Player’s Name, Player’s State, Total Number of Points, Player’s Pre-Rating, and Average Pre Chess Rating of Opponents
+
+For the first player, the information would be:
+
+> Gary Hua, ON, 6.0, 1794, 1605
+
+1605 was calculated by using the pre-tournament opponents’ ratings of 1436, 1563, 1600, 1610, 1649, 1663, 1716, and
+dividing by the total number of games played.
+
+If you have questions about the meaning of the data or the results, please post them on the discussion forum. Data
+science, like chess, is a game of back and forth…
+
+The chess rating system (invented by a Minnesota statistician named Arpad Elo) has been used in many other contexts,
+including assessing relative strength of employment candidates by human resource departments.
+
+You may substitute another text file (or set of text files, or data scraped from web pages) of similar or greater
+complexity, and create your own assignment and solution. You may work in a small team. All of your code should be in
+an R markdown file (and published to rpubs.com); with your data accessible for the person running the script.
+
+## Load the Dataset
+
+```{r load_data}
+
+# Load the chess ELO document into R, skip over the 1st 4 header row, we won't need those
+elo_data <- read_lines('tournamentinfo.txt', skip=4)
+
+# quick sanity check to see if the data loaded
+head(elo_data, n=9)
+
+# Let see how many rows so we can verify later munging steps - should be 3 rows per player
+print(paste('Rows of Raw Data:', length(elo_data)))
+print(paste('Players found:', length(elo_data) / 3))
+```
+
+## Munge and Extract Data
+
+```{r}
+# Remove every 3rd line with dashes
+elo_data <- elo_data[-seq(3, length(elo_data), by=3)]
+
+# for each player, combine their 2 rows of data into 1 wide row
+elo_data <- paste(elo_data[seq(1, length(elo_data), by=2)], elo_data[seq(2, length(elo_data), by=2)], sep="")
+
+# How many player rows are still here - should match count above
+print(paste('Players found:', length(elo_data)))
+```
+
+### Convert into a DataFrame
+
+```{r}
+elo_list <- str_split(elo_data, "\\|")
+
+elo_df <- NULL
+
+for (r in 1:length(elo_list)) {
+  trim_row <- unlist(lapply(elo_list[[r]], str_trim))
+  elo_df <- rbind(elo_df, trim_row)
+}
+
+elo_df <- data.frame(elo_df)
+elo_df <- as_tibble(elo_df)
+
+elo_df
+```
+
+### Fix DF Column names
+
+Lets calculate the number of opponent matches were played.  While our dataset had a fixed 7 opponents. maybe in the future, a contest fewer or more match columns provided.
+
+```{r}
+# Figure out how many opponent matches occurred
+total_cols <- ncol(elo_df)                      # parsed columns found
+fixed_cols <- 7                                 # "id", "name", "points", "state", "score", "num", "tail" 
+opponent_cols <- (total_cols - fixed_cols) / 2  # there are 2 columns per opponent
+
+# Setup list of column names we'll appy to our DF
+opp_ids <- list()     # we'll also use this list later when cleaning up columns
+opp_colors <- list()  # we'll be deleting these columns late
+
+# Build lists of opponent related columns
+for (i in 1:opponent_cols) {
+  opp_ids <- c(opp_ids, paste("oppID_", i, sep=""))
+  opp_colors <- c(opp_colors, paste("oppColor_", i, sep=""))
+}
+
+# Now set column names on our DF
+colnames(elo_df) <- c("id", "name", "points", opp_ids, "state", "score", "num", opp_colors, "trail")
+
+names(elo_df)
+```
+
+### Drop Unnecessary Columns
+
+```{r}
+# drop unnecessary columns
+keep <- c("id", "name", "points", "state", "score", unlist(opp_ids))
+elo_df <- elo_df[keep] 
+
+names(elo_df)
+```
+
+### Clean up data in each column
+
+```{r}
+# Lets clean up our columns (fix datatypes and extract parts where necessary)
+elo_df$id <- as.integer(lapply(elo_df$id, as.character))
+elo_df$name <- unlist(lapply(elo_df$name, as.character))
+elo_df$points <- as.numeric(elo_df$points)
+
+# The players pre-competition score is buried in the $score string, use regex to pull out
+elo_df$score <- unlist(lapply(elo_df$score, as.character))
+elo_df$score <- as.integer(str_match(as.character(elo_df$score), ".*R: *(\\d+).*")[,2])
+
+# Loop thru the opponent columns and extract the opponent ID's.  We'll need those to look up and average opponent scores later
+for (i in 1: length(opp_ids)) {
+  elo_df[[opp_ids[[i]]]] <- unlist(lapply(elo_df[[opp_ids[[i]]]], as.character))
+  elo_df[[opp_ids[[i]]]] <- as.integer(str_match(elo_df[[opp_ids[[i]]]], ".+ (\\d+)$")[,2])
+}
+
+str(elo_df)
+```
+
+## Calculate player's Average Opponent Score
+
+```{r}
+# I kow there is a way to do this vectorized, probably with nested lappy(), but after many hours of head banging, I decided loops were good enough for this dataset.
+rate_cols <- list()
+
+# Loop thru each oppID_* column
+for (i in 1:length(opp_ids)) {
+  # Create the column name that 'll hold the opponent rating
+  rate_col <- paste("oppRating_", i, sep="")
+  rate_cols <- c(rate_cols, rate_col)
+  
+  # Create a new rating column (seed with id, we'll replace this with rating in the next step)
+  elo_df[rate_col] <- elo_df[opp_ids[[i]]]
+  
+  # Loop thru all cells in the new rating column, look up the score for the id, then overwrite
+  # note, I'm make sure the ID isn't larger than our row count as a safety value
+  for (r in 1:nrow(elo_df)) {
+    if(!is.na(elo_df[[r, rate_col]]) && elo_df[[r, rate_col]] <= nrow(elo_df)) {
+       elo_df[[r, rate_col]] <- as.integer(elo_df[elo_df$id==elo_df[[r, rate_col]], 'score'])
+    }
+  }
+}
+
+# with Opponent scores populated, the mean is easy.  Note that I left NA's in place on purpose so I could do quick mean calcualtion with na.rm=TRUE.
+elo_df$avg_opp_ratings <- rowMeans(elo_df[unlist(rate_cols)], na.rm=TRUE)
+elo_df$avg_opp_ratings
+```
+
+```{r}
+rowMeans(elo_df[unlist(rate_cols)], na.rm=TRUE)
+
+```
+
+
+## Final Output
+
+### Prepare DF for export
+
+```{r}
+final <- elo_df[c('name', 'state', 'points', 'score', 'avg_opp_ratings')]
+final
+```
+
+### Save CSV file
+
+```{r}
+write.csv(final, file="elo_export.csv")
+```
+
+
+
+## What I Learned
+
+- Python is soooo much easier to work.  Fortunately, I'm already bald so didn't tear any hair out. 
+-
+- 

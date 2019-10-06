@@ -1,0 +1,1019 @@
+---
+title: "DATA 607 Project 2"
+subtitle: "Tidying and Tansforming Data"
+author: 'Donny Lofland'
+date: '10/6/2019'
+output:
+  html_document:
+    theme: cerulean
+    highlight: pygments
+    css: ./lab.css
+    toc: true
+    toc_float: true
+---
+
+```{r setup, message = FALSE, warning = FALSE}
+knitr::opts_chunk$set(echo=TRUE, message=FALSE, warning=FALSE, include=TRUE, error=FALSE)
+library(tidyverse)
+library(RMySQL)      # Older MysQL library (note: I could NOT get the RMariaDB lib to work)
+library(formattable) # Pretty print tables
+library(xlsx)
+library(rvest)
+library(stargazer)
+```
+
+Source files: [https://github.com/djlofland/DATA607_F2019/tree/master/Project2](https://github.com/djlofland/DATA607_F2019/tree/master/Project2)
+
+## Assignment
+
+The goal of this assignment is to give you practice in preparing different datasets for downstream
+analysis work.
+Your task is to:
+
+1. Choose any three of the “wide” datasets identified in the Week 6 Discussion items. (You may
+use your own dataset; please don’t use my Sample Post dataset, since that was used in your
+Week 6 assignment!) For each of the three chosen datasets:
+- Create a .CSV file (or optionally, a MySQL database!) that includes all of the information
+included in the dataset. You’re encouraged to use a “wide” structure similar to how the
+information appears in the discussion item, so that you can practice tidying and
+transformations as described below.
+- Read the information from your .CSV file into R, and use tidyr and dplyr as needed to
+tidy and transform your data. [Most of your grade will be based on this step!]
+- Perform the analysis requested in the discussion item.
+- Your code should be in an R Markdown file, posted to rpubs.com, and should include
+narrative descriptions of your data cleanup work, analysis, and conclusions.
+2. Please include in your homework submission, for each of the three chosen datasets:
+- The URL to the .Rmd file in your GitHub repository, and
+- The URL for your rpubs.com web page.
+
+---
+
+## Project
+
+In the late 1990's I worked for an NGO that focused on training doctors, nurses and midwives on women's reproductive health issues and health during pregancy.  The NGO developed and tested training programs in very rural areas around the world to teach health care providers how to provide care for women with no easy access to primary health care facilities or doctors.  
+
+In our Weekly Discussion forum, Euclid Zhang shared a link to UNICEF data and while browsing their datasets, I stumbled on a few datasets which really spoke to me and the incredible work I once contributed toward.  The datasets provide data and trends in both maternal health and outcomes along with indicators by country.  For Project 2, rather than pick 3 disparate datasets to analyze, I'm going to instead follow this theme of maternal outcome around the world.
+
+For an understanding of the problem space, see [Maternal mortality](https://www.who.int/news-room/fact-sheets/detail/maternal-mortality). 
+
+Some key facts they provide:
+- Every day in 2017, approximately 810 women died from preventable causes related to pregnancy and childbirth.
+- Between 2000 and 2017, the maternal mortality ratio (MMR, number of maternal deaths per 100,000 live births) dropped by about 38% worldwide.
+- 94% of all maternal deaths occur in low and lower middle-income countries.
+- Young adolescents (ages 10-14) face a higher risk of complications and death as a result of pregnancy than other women.
+- Skilled care before, during and after childbirth can save the lives of women and newborns.
+
+The primary datasets I'll explore are:
+
+- [Trends in estimates of maternal mortality ratio (maternal deaths per 100,000 live births) 2000-2017 (September 2019)](https://data.unicef.org/wp-content/uploads/2015/11/MMR-trend-estimates-2000-2017_MMEIG-2.xlsx)
+- [All adolescents maternal health indicators (July 2018)](https://data.unicef.org/wp-content/uploads/2018/07/maternal_health_adolescents_indicators_April-2016_250d599.xlsx)
+- [WHO Health Expenditures by Country](http://apps.who.int/nha/database/ViewData/Indicators/en)
+- [Birthrate Data by Country](http://api.worldbank.org/v2/en/indicator/SP.DYN.CBRT.IN?downloadformat=excel)
+- [List_of_countries_by_past_and_future_population](https://en.wikipedia.org/wiki/List_of_countries_by_past_and_future_population)
+
+Each of these datasets required Tidy processing to clean up.  I also join the data where possible by country and year to tease out additional patterns not available within any one dataset.  
+
+To facilitate joining tables using different Country label conventions, I scraped a lookup table with Country names and ISO3 codes which I join to my various datasets.
+
+- [World ISO3 Country Codes](https://www.iban.com/country-codes)
+
+These datasets explore different years, but have broad overlap between 2000-2015 (every 5 years).  My analysis will be somewhat limited by the available data.  If I were doing a deeper dive, I would look for more complete data and/or limit my questions to those countries that have a richer set of data.  My guess is that better data may indicate more attention to tackling problems with maternal mortality and as a consequence, better data might come from countries with better reporting and more on-the-ground efforts.
+
+## Load Data
+
+### Load Country Codes
+
+During research I found that different datasets included ISO2 (Alpha 2), ISO3 (Alpha 3) and/or descriptive country names.   Just in case it's needed, I wanted a lookup table I can use to join different datasets using different country name conventions.
+
+```{r load_country_codes_data}
+url             <- "https://www.iban.com/country-codes"
+cache_fn        <- 'country_codes.csv'
+
+isCacheFound    <- FALSE
+local_cache_fn  <- paste('data/cache/', cache_fn, sep = '')
+
+# Check if we have a local copy of the data available to load
+if(file.exists(local_cache_fn)) {
+  msg <- paste('Found cached copy: ', local_cache_fn, sep='')
+  isCacheFound <- TRUE
+}
+
+# Cached ata file found
+if (isCacheFound) {
+  # Load CSV Files
+  data_df <- read_csv(local_cache_fn, col_names = TRUE)
+  isDataLoaded <- TRUE
+  msg <- 'Cached CSV data loaded.'
+
+} else {
+  # Load Raw Data
+  data_df <- url %>%
+    xml2::read_html() %>%
+    html_nodes(xpath='//*[@id="myTable"]') %>%
+    html_table()
+  
+  data_df <- data_df[[1]]
+  
+  # Cache the processed as CSV for future
+  write.csv(data_df, local_cache_fn, row.names=FALSE, na="")
+}
+
+iso3_codes <- data_df
+isTidy_iso3_codes <- FALSE
+
+print(msg)
+```
+
+```{r country_codes_table_raw, results='asis', echo=T}
+knitr::kable(iso3_codes[1:10, ], booktabs = T, caption = "ISO2 and ISO3 Country Codes.  Raw data, first 10 rows shown.  (Source: http://iban.com/country-codes)")
+```
+
+#### Tidy Country Codes
+
+```{r tidy_country_codes}
+
+# If rerunning our RMarkdown, only tidy if necessary
+if (isTidy_iso3_codes == FALSE) {
+  
+  # Convert year columns into a variable
+  iso3_codes <- iso3_codes %>% 
+    mutate(ISO3 = `Alpha-3 code`, ISO2 = `Alpha-2 code`) %>%
+    select(Country, ISO3, ISO2)
+  
+  isTidy_iso3_codes <- TRUE # if this cell ir rerun, don't try to re-tidy
+  
+} else {
+  print('Already processed, nothing to do.')
+}
+
+```
+
+```{r country_codes_table_tidy, results='asis', echo=T}
+knitr::kable(iso3_codes[1:10, ], booktabs = T, caption = "ISO2 and ISO3 Country Codes.  Tidy data, first 10 rows shown.")
+```
+
+### Load Population Data
+
+Changes in country population might change how we interpret maternal mortality rate.  While the rate should theoretically be independent from population (by definition MMR is maternal deaths per 100,000 live births), if there is a large increase or decrease in population, this might impact conditions around pregnency (nutrition, access to health care, etc) and/or conditions at time of birth (e.g. access to health care).  Since MMR is "deaths per live briths", I'll end up needing population data to help calculate the number of live births.
+
+```{r load_population_data}
+url        <- "https://en.wikipedia.org/wiki/List_of_countries_by_past_and_future_population"
+cache_fn   <- 'population.csv'
+
+isCacheFound <- FALSE
+local_cache_fn    <- paste('data/cache/', cache_fn, sep = '')
+
+# Check if we have a local copy of the data available to load
+if(file.exists(local_cache_fn)) {
+  msg <- paste('Found cached copy: ', local_cache_fn, sep='')
+  isCacheFound <- TRUE
+}
+
+# Cached ata file found
+if (isCacheFound) {
+  # Load CSV Files
+  data_df <- read_csv(local_cache_fn, col_names = TRUE)
+  isDataLoaded <- TRUE
+  msg <- 'Cached CSV data loaded.'
+
+} else {
+  # Load Raw Data
+  data_df <- url %>%
+    xml2::read_html() %>%
+    html_nodes(xpath='//*[@id="mw-content-text"]/div/table[2]') %>%
+    html_table()
+  
+  data_df <- data_df[[1]]
+  
+  # Cache the processed as CSV for future
+  write.csv(data_df, local_cache_fn, row.names=FALSE, na="")
+}
+
+population_df <- data_df
+isTidy_population <- FALSE
+
+print(msg)
+```
+
+```{r population_table_raw, results='asis', echo=T}
+knitr::kable(population_df[1:10, ], booktabs = T, caption = "Population Data.  Raw data, first 10 rows shown.  (Source: https://en.wikipedia.org/wiki/List_of_countries_by_past_and_future_population)")
+```
+
+#### Tidy Population Data
+
+```{r tidy_population}
+
+# If rerunning our RMarkdown, only tidy if necessary
+if (isTidy_population == FALSE) {
+  
+  # Convert year columns into a variable
+  population_df <- population_df %>% 
+    mutate(Country = `Country (or dependent territory)`) %>%
+    select(Country, `2000`, `2005`, `2010`, `2015`) %>%
+    gather(Year, Population, -Country)
+
+  # Fix datatypes
+  population_df$Year <- as.numeric(population_df$Year)
+
+  # Filter years  
+  population_df <- population_df %>% filter(Year >= 2000 & Year <= 2015) %>% arrange(Country, Year)
+  population_df$Population <- population_df$Population* 1000
+  population_df <- population_df %>% left_join(iso3_codes)
+  
+  isTidy_population <- TRUE # if this cell ir rerun, don't try to re-tidy
+  
+} else {
+  print('Already processed, nothing to do.')
+}
+```
+
+```{r population_table_tidy, results='asis', echo=T}
+knitr::kable(population_df[1:10, ], booktabs = T, caption = "Population Data.  Tidy date, first 10 rows shown.")
+```
+
+### Load Birthrate Data
+
+While there is variation between countries, the overall birthrate worldwide has declined.  To understand changes in maternal mortality, we will need to estimate how many births are occuring during years of interest in each country.  It's possible that changes in birth rates could have an impact on MMR.  
+
+```{r load_birthrate_data}
+
+# We first want to check if the data has already been loaded and muched  as a local cached .csv file.  If the csv file is available, use that.  If 
+# it's not, then we will download and/or load the raw data, munge and save as a local cache .csv.
+
+# Source Data File
+source_url        <- 'http://api.worldbank.org/v2/en/indicator/SP.DYN.CBRT.IN?downloadformat=excel'
+raw_fn            <- 'API_SP.DYN.CBRT.IN_DS2_en_excel_v2_248743.xlsx'
+cache_fn          <- 'births.csv'
+
+# Which WorkSheet to load and there are some extra rows above & below our table of interest. 
+data_header_rows  <- 3  # rows at top to skip (note, blank rows are automatically skipped)
+data_tail_rows    <- 0  # rows at bottom to skip
+data_header       <- FALSE
+data_sheet        <- 1      # optional for Excel Workbooks
+data_column_names <- c('Country', 'ISO3', 'Indicator', 'Indicator_Code', as.character(seq(1960, 2017, 1)))
+
+# Some variables to help with flow control
+isCacheFound      <- FALSE
+isRawFound        <- FALSE
+isDataLoaded      <- FALSE
+
+local_raw_fn      <- paste('data/raw/', raw_fn, sep = '')
+local_cache_fn    <- paste('data/cache/', cache_fn, sep = '')
+
+# Check if we have a local copy of the data available to load
+if(file.exists(local_cache_fn)) {
+  msg <- paste('Found cached copy: ', local_cache_fn, sep='')
+  isCacheFound <- TRUE
+  
+} else if(file.exists(local_raw_fn)) {
+  msg <- paste('Found raw copy: ', local_raw_fn, ' (May need processing)', sep = '')
+  isRawFound <- TRUE
+  
+} else {
+  # Attempt to download the dataset
+  download.file(source_url, local_raw_fn, method="auto")
+  
+  if(file.size(local_raw_fn) > 0) {
+    msg <- paste('Downloaded file from: ', source_url, sep='')
+    isRawFound <- TRUE
+  } else {
+    msg <- paste("File not found and couldn't be downloaded. Check file name and/or source.")
+  }
+}
+
+print(msg)
+
+# Cached data file found
+if (isCacheFound) {
+  # Load CSV Files
+  data_df <- read_csv(paste('data/cache/', cache_fn, sep = ''), col_names = TRUE)
+  isDataLoaded <- TRUE
+  msg <- 'Cached CSV data loaded.'
+
+} else if (isRawFound) {
+  # Load Raw File - Make sure it's excel since read.xlsx will break with other file formats
+  if (str_detect(local_raw_fn, '.*\\.xlsx?$')) {
+    data_df <- read.xlsx(local_raw_fn, sheetIndex = data_sheet, header=data_header)
+    isDataLoaded <- TRUE
+    msg <- 'Raw data loaded.'
+    
+    ##### DATA PROCESSING start #####
+    
+    # Are there any extraneous row at to top to remove?
+    if (data_header_rows > 0) {
+      data_df <- data_df[(data_header_rows + 1):nrow(data_df),]
+      data_header_rows <- 0
+      rownames(data_df) <- NULL
+    }
+    
+    # Did the raw file have any extraneous rows at the bottom to remove?
+    if (data_tail_rows > 0) {
+      last_row <- nrow(data_df)-data_tail_rows
+      data_df <- data_df[0:last_row,]
+      data_tail_rows <- 0
+      rownames(data_df) <- NULL
+    }
+    
+    # Remove any empty columns in the raw data
+    data_df <- data_df %>% select_if(function(x) {!all(is.na(x))})
+    
+    # Set the Column names
+    if (length(data_column_names) > 0) {
+      names(data_df) <- data_column_names
+      data_column_names <- list()
+    }
+    
+    # Convert to a tibble
+    data_df <- as_tibble(data_df)
+    
+    ##### DATA PROCESSING done #####
+    
+    # Cache the processed as CSV for future
+    write.csv(data_df, local_cache_fn, row.names=FALSE, na="")
+    msg <- 'Raw data loaded, processed and saved to cache.'
+    
+    data_df <- read_csv(paste('data/cache/', cache_fn, sep = ''), col_names = TRUE)
+  }
+} else {
+  # Bummer - no load data file was found to load
+  msg <- 'Data NOT loaded.'
+}
+
+birthrate_df   <- data_df
+isTidy_birthrate <- FALSE
+
+print(msg)
+```
+
+```{r birthrate_table_raw, results='asis', echo=T}
+knitr::kable(birthrate_df[1:10, ], booktabs = T, caption = "Birthrate Data.  Raw data, first 10 rows shown.  Births per 1000 people.  (Source: http://api.worldbank.org/v2/en/indicator/SP.DYN.CBRT.IN?downloadformat=csv)")
+```
+
+#### Tidy Birthrate Data
+
+```{r tidy_birthrates}
+
+# If rerunning our RMarkdown, only tidy if necessary
+if (isTidy_birthrate == FALSE) {
+  
+  # Convert year columns into a variable
+  birthrate_df <- birthrate_df %>% 
+    select(Country, `2000`, `2005`, `2010`, `2015`) %>%
+    gather(Year, BirthRate, -Country) %>% 
+    arrange(Country, Year) %>% 
+    inner_join(iso3_codes)
+
+  # Fix datatypes
+  birthrate_df$Year <- as.numeric(birthrate_df$Year)
+
+  isTidy_birthrate <- TRUE # if this cell ir rerun, don't try to re-tidy
+  
+} else {
+  print('Already processed, nothing to do.')
+}
+```
+
+```{r birthrate_table_tidy, results='asis', echo=T}
+knitr::kable(birthrate_df[1:10, ], booktabs = T, caption = "Birthrate Data.  Tidy data, first 10 rows shown.  Births per 1000 people.")
+```
+
+### Load Maternal Mortality Data
+
+THis is the primary dataset which everything else is linked with.  Here we see the maternal mortality rate provided as deaths per 100,000 live births broken out by country and year.
+
+```{r load_mmr_data}
+
+# We first want to check if the data has already been loaded and muched  as a local cached .csv file.  If the csv file is available, use that.  If 
+# it's not, then we will download and/or load the raw data, munge and save as a local cache .csv.
+
+# Source Data File
+source_url        <- 'https://data.unicef.org/wp-content/uploads/2015/11/MMR-trend-estimates-2000-2017_MMEIG-2.xlsx'
+raw_fn            <- 'MMR-trend-estimates-2000-2017_MMEIG-2.xlsx'
+cache_fn          <- 'mmr_data.csv'
+
+# Which WorkSheet to load and there are some extra rows above & below our table of interest. 
+data_header_rows  <- 4  # rows at top to skip (note, blank rows are automatically skipped)
+data_tail_rows    <- 17  # rows at bottom to skip
+data_header       <- FALSE
+data_sheet        <- 1      # optional for Excel Workbooks
+data_column_names <- c('ISO3','Country','2000','2005','2010','2015', '2017')
+
+# Some variables to help with flow control
+isCacheFound      <- FALSE
+isRawFound        <- FALSE
+isDataLoaded      <- FALSE
+
+local_raw_fn      <- paste('data/raw/', raw_fn, sep = '')
+local_cache_fn    <- paste('data/cache/', cache_fn, sep = '')
+
+# Check if we have a local copy of the data available to load
+if(file.exists(local_cache_fn)) {
+  msg <- paste('Found cached copy: ', local_cache_fn, sep='')
+  isCacheFound <- TRUE
+  
+} else if(file.exists(local_raw_fn)) {
+  msg <- paste('Found raw copy: ', local_raw_fn, ' (May need processing)', sep = '')
+  isRawFound <- TRUE
+  
+} else {
+  # Attempt to download the dataset
+  download.file(source_url, local_raw_fn, method="auto")
+  
+  if(file.size(local_raw_fn) > 0) {
+    msg <- paste('Downloaded file from: ', source_url, sep='')
+    isRawFound <- TRUE
+  } else {
+    msg <- paste("File not found and couldn't be downloaded. Check file name and/or source.")
+  }
+}
+
+print(msg)
+
+# Cached data file found
+if (isCacheFound) {
+  # Load CSV Files
+  data_df <- read_csv(paste('data/cache/', cache_fn, sep = ''), col_names = TRUE)
+  isDataLoaded <- TRUE
+  msg <- 'Cached CSV data loaded.'
+
+} else if (isRawFound) {
+  # Load Raw File - Make sure it's excel since read.xlsx will break with other file formats
+  if (str_detect(local_raw_fn, '.*\\.xlsx?$')) {
+    data_df <- read.xlsx(local_raw_fn, sheetIndex = data_sheet, header=data_header)
+    isDataLoaded <- TRUE
+    msg <- 'Raw data loaded.'
+    
+    ##### DATA PROCESSING start #####
+    
+    # Are there any extraneous row at to top to remove?
+    if (data_header_rows > 0) {
+      data_df <- data_df[(data_header_rows + 1):nrow(data_df),]
+      data_header_rows <- 0
+      rownames(data_df) <- NULL
+    }
+    
+    # Did the raw file have any extraneous rows at the bottom to remove?
+    if (data_tail_rows > 0) {
+      last_row <- nrow(data_df)-data_tail_rows
+      data_df <- data_df[0:last_row,]
+      data_tail_rows <- 0
+      rownames(data_df) <- NULL
+    }
+    
+    # Remove any empty columns in the raw data
+    data_df <- data_df %>% select_if(function(x) {!all(is.na(x))})
+    
+    # Set the Column names
+    if (length(data_column_names) > 0) {
+      names(data_df) <- data_column_names
+      data_column_names <- list()
+    }
+    
+    # Convert to a tibble
+    data_df <- as_tibble(data_df)
+    
+    ##### DATA PROCESSING done #####
+    
+    # Cache the processed as CSV for future
+    write.csv(data_df, local_cache_fn, row.names=FALSE, na="")
+    msg <- 'Raw data loaded, processed and saved to cache.'
+    
+    data_df <- read_csv(paste('data/cache/', cache_fn, sep = ''), col_names = TRUE)
+  }
+} else {
+  # Bummer - no load data file was found to load
+  msg <- 'Data NOT loaded.'
+}
+
+mmr_df <- data_df
+isTidy_mmr   <- FALSE
+
+print(msg)
+```
+
+```{r mmr_table_raw, results='asis', echo=T}
+knitr::kable(mmr_df[1:10, ], booktabs = T, caption = "Maternal Mortality Data.  Count of maternal deaths per 100,000 live births.  Raw data, first 10 rows shown.  (Source: https://data.unicef.org/resources/dataset/maternal-health-data/)")
+```
+
+#### Tidy MMR Dataset
+
+```{r tidy_mmr}
+
+# If rerunning our RMarkdown, only tidy if necessary
+if (isTidy_mmr == FALSE) {
+  # Convert year columns into a variable
+  mmr_df <- mmr_df %>% 
+    gather(Year, MMR, -ISO3, -Country)
+
+  # Fix datatypes
+  mmr_df$Year <- as.numeric(mmr_df$Year)
+
+  # Filter years  
+  mmr_df <- mmr_df %>% filter(Year <= 2015) %>% arrange(Country, Year)
+
+  isTidy_mmr <- TRUE # if this cell ir rerun, don't try to re-tidy
+  
+} else {
+  print('Already processed, nothing to do.')
+}
+```
+
+```{r mmr_table_tidy, results='asis', echo=T}
+knitr::kable(mmr_df[1:10, ], booktabs = T, caption = "Maternal Mortality Data.  Count of maternal deaths per 100,000 live births.  Tidy data, first 10 rows shown. Years included: 2000, 2005, 2010, 2015.")
+```
+
+### Load Skilled Attendant Data
+
+UNICEF provides country level data describing a number of different indicators related to pregnancy and births.  The downloaded raw dataset includes a number of different indicator tabs, "Skilled Attendant at Birth" (SAB) being only one of many.   I'm curious how the presence of a trainined attendant might correlate with the more central question of maternal mortality during birth.  UNICEF don't report for all countries, only a subset, so that will limit my analysis to specific countries.  
+
+```{r load_indicators_data}
+
+# We first want to check if the data has already been loaded and muched  as a local cached .csv file.  If the csv file is available, use that.  If 
+# it's not, then we will download and/or load the raw data, munge and save as a local cache .csv.
+
+# Source Data File
+source_url        <- 'https://data.unicef.org/wp-content/uploads/2018/07/maternal_health_adolescents_indicators_April-2016_250d599.xlsx'
+raw_fn            <- 'maternal_health_adolescents_indicators_April-2016_250d599.xlsx'
+cache_fn          <- 'sab_indicators.csv'
+
+# Which WorkSheet to load and there are some extra rows above & below our table of interest. 
+data_header_rows  <- 8  # rows at top to skip (note, blank rows are automatically skipped)
+data_tail_rows    <- 9  # rows at bottom to skip
+data_header       <- FALSE
+data_sheet        <- 5      # optional for Excel Workbooks
+data_column_names <- c('ISO3','Country','Year','Total','Age_1517','Age_1819', 'Age_lt20', 'Age_gt20', 'Age_2034', 'Age_3549', 'Source', 'SourceYear')
+
+# Some variables to help with flow control
+isCacheFound      <- FALSE
+isRawFound        <- FALSE
+isDataLoaded      <- FALSE
+
+local_raw_fn      <- paste('data/raw/', raw_fn, sep = '')
+local_cache_fn    <- paste('data/cache/', cache_fn, sep = '')
+
+# Check if we have a local copy of the data available to load
+if(file.exists(local_cache_fn)) {
+  msg <- paste('Found cached copy: ', local_cache_fn, sep='')
+  isCacheFound <- TRUE
+  
+} else if(file.exists(local_raw_fn)) {
+  msg <- paste('Found raw copy: ', local_raw_fn, ' (May need processing)', sep = '')
+  isRawFound <- TRUE
+  
+} else {
+  # Attempt to download the dataset
+  download.file(source_url, local_raw_fn, method="auto")
+  
+  if(file.size(local_raw_fn) > 0) {
+    msg <- paste('Downloaded file from: ', source_url, sep='')
+    isRawFound <- TRUE
+  } else {
+    msg <- paste("File not found and couldn't be downloaded. Check file name and/or source.")
+  }
+}
+
+print(msg)
+
+# Cached data file found
+if (isCacheFound) {
+  # Load CSV Files
+  data_df <- read_csv(paste('data/cache/', cache_fn, sep = ''), col_names = TRUE)
+  isDataLoaded <- TRUE
+  msg <- 'Cached CSV data loaded.'
+
+} else if (isRawFound) {
+  # Load Raw File - Make sure it's excel since read.xlsx will break with other file formats
+  if (str_detect(local_raw_fn, '.*\\.xlsx?$')) {
+    data_df <- read.xlsx(local_raw_fn, sheetIndex = data_sheet, header=data_header)
+    isDataLoaded <- TRUE
+    msg <- 'Raw data loaded.'
+    
+    ##### DATA PROCESSING start #####
+    
+    # Are there any extraneous row at to top to remove?
+    if (data_header_rows > 0) {
+      data_df <- data_df[(data_header_rows + 1):nrow(data_df),]
+      data_header_rows <- 0
+      rownames(data_df) <- NULL
+    }
+    
+    # Did the raw file have any extraneous rows at the bottom to remove?
+    if (data_tail_rows > 0) {
+      last_row <- nrow(data_df)-data_tail_rows
+      data_df <- data_df[0:last_row,]
+      data_tail_rows <- 0
+      rownames(data_df) <- NULL
+    }
+    
+    # Remove any empty columns in the raw data
+    data_df <- data_df %>% select_if(function(x) {!all(is.na(x))})
+    
+    # Set the Column names
+    if (length(data_column_names) > 0) {
+      names(data_df) <- data_column_names
+      data_column_names <- list()
+    }
+    
+    # Convert to a tibble
+    data_df <- as_tibble(data_df)
+    
+    ##### DATA PROCESSING done #####
+    
+    # Cache the processed as CSV for future
+    write.csv(data_df, local_cache_fn, row.names=FALSE, na="")
+    msg <- 'Raw data loaded, processed and saved to cache.'
+    
+    data_df <- read_csv(paste('data/cache/', cache_fn, sep = ''), col_names = TRUE)
+  }
+} else {
+  # Bummer - no load data file was found to load
+  msg <- 'Data NOT loaded.'
+}
+
+sab_df   <- data_df
+isTidy_sab <- FALSE
+
+print(msg)
+```
+
+```{r sab_table_raw, results='asis', echo=T}
+knitr::kable(sab_df[1:10, ], booktabs = T, caption = "Skilled Attendant at Birth.  Raw data, first 10 rows shown.  (Source: https://data.unicef.org/wp-content/uploads/2018/07/maternal_health_adolescents_indicators_April-2016_250d599.xlsx)")
+```
+
+#### Tidy SAB Dataset
+
+```{r tidy_sab}
+isTidy_sab   <- FALSE
+
+# If rerunning our RMarkdown, only tidy if necessary
+if (isTidy_sab == FALSE) {
+  # While this is a wide dataset and it's trivial to gather() the age data, for my questions, I really don't need age.  Since my MMR, Population and NHA data do not provide Age breakouts, I will only focus on the Total percentage.
+  sab_df <- sab_df %>% select(ISO3, Country, Year, Total, Source)
+  
+  # Fix datatypes
+  sab_df$Year <- as.numeric(sab_df$Year)
+  sab_df$Total <- as.numeric(sab_df$Total)
+  
+  # Since there are two different sources of data, we might have a case where they report for the same year.  I'm going to group_by() and average the totals in the case where we have multiple data points.
+  sab_df <- sab_df %>% group_by(ISO3, Year) %>% summarize(SAB_Pct = mean(Total))
+  sab_df <- sab_df %>% filter(Year == 2000 | Year == 2005 | Year == 2010 | Year == 2015)
+  
+  isTidy_sab <- TRUE # if this cell ir rerun, don't try to re-tidy
+
+} else {
+  print('Already processed, nothing to do.')
+}
+```
+
+```{r sab_table_tidy, results='asis', echo=T}
+knitr::kable(sab_df[1:10, ], booktabs = T, caption = "Skilled Attendant at Birth.  Tidy data, first 10 rows shown.")
+```
+
+### Load Health Expenditures Data
+
+WHO provides on online tool to export data from WHO member countries on a variety of meansures.  After exploring options, I honed in on Health Expenditures.  I am curious if spending on Health has any noticable correlation with maternal mortality outcomes. I manually downloaded the NHA_indicators.xlsx from their online tool.
+
+reference: [http://apps.who.int/nha/database/Home/Index/en](http://apps.who.int/nha/database/Home/Index/en)
+source: [http://apps.who.int/nha/database/ViewData/Indicators/en](http://apps.who.int/nha/database/ViewData/Indicators/en)
+
+```{r load_expenditures_data}
+# reference: http://apps.who.int/nha/database/Home/Index/en
+# source: http://apps.who.int/nha/database/ViewData/Indicators/en
+
+# We first want to check if the data has already been loaded and muched  as a local cached .csv file.  If the csv file is available, use that.  If 
+# it's not, then we will download and/or load the raw data, munge and save as a local cache .csv.
+
+# Source Data File
+#source_url        <- 'https://data.unicef.org/wp-content/uploads/2018/07/maternal_health_adolescents_indicators_April-2016_250d599.xlsx'
+raw_fn            <- 'NHA_indicators.xlsx'
+cache_fn          <- 'nha_indicators.csv'
+
+# Which WorkSheet to load and there are some extra rows above & below our table of interest. 
+data_header_rows  <- 2  # rows at top to skip (note, blank rows are automatically skipped)
+data_tail_rows    <- 0  # rows at bottom to skip
+data_header       <- FALSE
+data_sheet        <- 1      # optional for Excel Workbooks
+data_column_names <- c('Country','Indicator','Note','Year_2000','Year_2005','Year_2010', 'Year_2015')
+
+# Some variables to help with flow control
+isCacheFound      <- FALSE
+isRawFound        <- FALSE
+isDataLoaded      <- FALSE
+
+local_raw_fn      <- paste('data/raw/', raw_fn, sep = '')
+local_cache_fn    <- paste('data/cache/', cache_fn, sep = '')
+
+# Check if we have a local copy of the data available to load
+if(file.exists(local_cache_fn)) {
+  msg <- paste('Found cached copy: ', local_cache_fn, sep='')
+  isCacheFound <- TRUE
+  
+} else if(file.exists(local_raw_fn)) {
+  msg <- paste('Found raw copy: ', local_raw_fn, ' (May need processing)', sep = '')
+  isRawFound <- TRUE
+  
+} else {
+  # Since data came from an online tool, we don't have a specific file we can download
+  msg <- paste("File not found and couldn't be downloaded. Check file name and/or source.")
+}
+
+print(msg)
+
+# Cached data file found
+if (isCacheFound) {
+  # Load CSV Files
+  data_df <- read_csv(paste('data/cache/', cache_fn, sep = ''), col_names = TRUE)
+  isDataLoaded <- TRUE
+  msg <- 'Cached CSV data loaded.'
+
+} else if (isRawFound) {
+  # Load Raw File - Make sure it's excel since read.xlsx will break with other file formats
+  if (str_detect(local_raw_fn, '.*\\.xlsx?$')) {
+    data_df <- read.xlsx(local_raw_fn, sheetIndex = data_sheet, header=data_header)
+    isDataLoaded <- TRUE
+    msg <- 'Raw data loaded.'
+    
+    ##### DATA PROCESSING start #####
+    
+    # Are there any extraneous row at to top to remove?
+    if (data_header_rows > 0) {
+      data_df <- data_df[(data_header_rows + 1):nrow(data_df),]
+      data_header_rows <- 0
+      rownames(data_df) <- NULL
+    }
+    
+    # Did the raw file have any extraneous rows at the bottom to remove?
+    if (data_tail_rows > 0) {
+      last_row <- nrow(data_df)-data_tail_rows
+      data_df <- data_df[0:last_row,]
+      data_tail_rows <- 0
+      rownames(data_df) <- NULL
+    }
+    
+    # Remove any empty columns in the raw data
+    data_df <- data_df %>% select_if(function(x) {!all(is.na(x))})
+    
+    # Set the Column names
+    if (length(data_column_names) > 0) {
+      names(data_df) <- data_column_names
+      data_column_names <- list()
+    }
+    
+    # Convert to a tibble
+    data_df <- as_tibble(data_df)
+    
+    ##### DATA PROCESSING done #####
+    
+    # Cache the processed as CSV for future
+    write.csv(data_df, local_cache_fn, row.names=FALSE, na="")
+    msg <- 'Raw data loaded, processed and saved to cache.'
+    
+    data_df <- read_csv(paste('data/cache/', cache_fn, sep = ''), col_names = TRUE)
+  }
+} else {
+  # Bummer - no load data file was found to load
+  msg <- 'Data NOT loaded.'
+}
+
+nha_df <- data_df
+isTidy_nha   <- FALSE
+
+print(msg)
+```
+
+```{r expenditures_table, results='asis', echo=T}
+knitr::kable(nha_df[1:10, ], booktabs = T, caption = "WHO Health Expenditures Data.  Raw data, first 10 rows shown.  (Source: http://apps.who.int/nha/database/ViewData/Indicators/en)")
+```
+
+#### Tidy NHA Dataset
+
+```{r tidy_nha}
+# If rerunning our RMarkdown, only tidy if necessary
+if (isTidy_nha == FALSE) {
+  # Remove to extra Note column we won't need
+  nha_df <- nha_df %>% select(-Note)
+  
+  # Convert year columns into a variable
+  nha_df <- nha_df %>%
+    gather(Year, Amount, -Country, -Indicator) %>% 
+    mutate(Year = stringr::str_replace(Year, "Year_", "")) %>% 
+    drop_na()
+
+  # Fix datatypes
+  nha_df$Year <- as.numeric(nha_df$Year)
+  nha_df$Amount <- as.numeric(nha_df$Amount)
+  
+  # Break out CHE into a separate column
+  exp_data <- nha_df %>% filter(Indicator == 'Current Health Expenditure (CHE) per Capita in PPP') %>% 
+    mutate(CHE = Amount) %>%
+    select(-Indicator, -Amount) %>%
+    arrange(Country, Year) %>% 
+    drop_na()
+  
+  # Break out GDP into a separate column
+  gdp_data <- nha_df %>% filter(Indicator == 'Gross Domestic Product') %>% 
+    mutate(GDP = Amount) %>%
+    select(-Indicator, -Amount) %>%    
+    arrange(Country, Year) %>% 
+    drop_na()
+  
+  # Join the columns back into a table based on Country & Year
+  nha_df <- gdp_data %>% 
+    left_join(exp_data) %>%
+    left_join(iso3_codes)
+
+  isTidy_nha <- TRUE # if this cell ir rerun, don't try to re-tidy
+  
+} else {
+  print('Already processed, nothing to do.')
+}
+```
+
+```{r expenditures_table_tidy, results='asis', echo=T}
+knitr::kable(nha_df[1:10, ], booktabs = T, caption = "WHO Reported Health Expernditures & GDP by Country & Year.  Tidy data, first 10 rows shown. Note CHE are adjusted with Purchase Price Parity (PPP) so dollars have equivalent spending power per country.  This is also sometimes refered to as the 'Big Mac Index'")
+```
+
+## Analysis
+
+Note: PPP refers to "Price Point Parity".  This country-by-country adjustment reflects different purchasing power in different geos and attempts to normalize spending for better comparison across geos.  We know intuititely that cost of living and items vary greatly around the world and \$1 in the US doesn't NOT have the same purchasing power as \$1 in India.  PPP normalizes so that spending can be compared across countries.
+
+### Join Tables
+
+Note that we are combining data from a number of sources and years.  As such there wil be a number of NA's where data is missing in various columns.  Here I also calculate the actual number of maternal deaths based on populations, birth rates and MMR rates.
+
+```{r mmr_count_by_country}
+
+# Use the current population by year * birthrate by year to get actual births
+births_df <- birthrate_df %>%
+  inner_join(population_df) %>%
+  mutate(Births = round(Population / 1000 * BirthRate)) %>% 
+  select(ISO3, Country, Year, Population, BirthRate, Births)
+births_df <- births_df %>% left_join(iso3_codes)
+
+# now that we have births, we can multiply by MMR (deaths per 100,000 births)
+mmr_df <- mmr_df %>% 
+  left_join(births_df) %>%
+  mutate(Deaths = round(Births / 10000 * MMR))
+  
+# join in Skilled Attendant at Birth (SAB)
+mmr_df <- mmr_df %>%
+  left_join(sab_df) %>%
+  left_join(nha_df)
+```
+
+```{r mmr_joined_table_tidy, results='asis', echo=T}
+knitr::kable(mmr_df[1:10, ], booktabs = T, caption = "Maternal Mortaility table with supporting columns.")
+```
+
+### MMR from 2000 to 2015
+
+We generally see a decline in mortality rates from 2000 to 2015 data.
+
+```{r mmr_change}
+data <- mmr_df %>% filter(Year==2000 | Year==2015) %>% select(MMR, Year)
+data$Year <- as.factor(data$Year)
+
+ggplot(data=data, aes(x=MMR, color=Year)) +
+  geom_histogram(fill='white', alpha=0.2, position="identity") +
+  scale_color_discrete(name="Year", labels=c(2000, 2015))
+```
+
+
+### Changes in Mortality by Country
+
+Let's see which countries have the most reduction in maternal deaths. 
+
+```{r}
+# Group data by country and calculate the delta in deaths over the years
+tbl <- mmr_df %>% 
+  group_by(Country) %>% 
+  summarize(delta = round(first(Deaths) - last(Deaths))) %>%
+  arrange(desc(delta)) %>%
+  drop_na()
+
+# barplot
+ggplot(tbl %>% top_n(10, delta), aes(x=reorder(Country, delta), y=delta, fill=Country)) +
+  ggtitle("Top 10 Countries with Reductions in Deaths") +
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  geom_bar(position='dodge', stat="identity") + 
+  geom_text(aes(reorder(Country, delta), y=delta, label = round(delta)), size = 2, hjust = -0.5, vjust = 0.5 ) +
+  scale_y_discrete(labels = comma, breaks=c(1000, 100000, 200000, 600000)) +
+  ylim(c(0,700000)) +
+  xlab('Country') + 
+  ylab('Deaths') +
+  theme(legend.position = "none") + 
+  coord_flip()
+```
+
+... and those with increases in maternal deaths. Nigeria is clearly experiencing a crisis.
+
+```{r}
+# barplot
+ggplot(tbl %>% top_n(-10, delta), aes(x=reorder(Country, delta), y=delta, fill=Country)) +
+  ggtitle("Bottom 10 Countries with Increases in Deaths") +
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  geom_bar(position='dodge', stat="identity") + 
+  geom_text(aes(reorder(Country, delta), y=delta, label = round(delta)), size = 2, hjust = 1.5, vjust = 0.5 ) +
+  scale_y_discrete(labels = comma, breaks=c(-30000, -20000, -1000)) +
+  ylim(c(-25000,0)) +
+  xlab('Country') + 
+  ylab('Deaths') +
+  theme(legend.position = "none") +
+  coord_flip()
+```
+
+```{r calc_delta}
+# Group data by country and calculate the delta in deaths over the years
+mmr_df <- mmr_df %>% 
+  group_by(Country) %>% 
+  mutate(delta = Deaths - lag(Deaths, order_by=Year, default=first(Deaths)))
+```
+
+### Health Expenditures vs GDP
+
+We see that generally, countries spend less than $4000 (PPP) adjusted dollars per person on health expenditures and as GDP increases, there is an increase in CHE.  We some clear outliers with very high GDP countries spending very little and vice versa, countries with relatively low GDP spending reporting quite high CHE.  While this is an interesting pattern, I suspect that CHE is not entriely reported nor being spent on the poorest population that might be more impacted by MMR.  Unfortunaely, I don't have the dataset to fully explore those questions.
+
+```{r}
+ggplot(mmr_df, aes(GDP, CHE)) +
+  geom_point() +
+  labs(title='Country Health Expenditure (PPP) vs Country GDP (PPP)') +
+  xlab('GDP (Millions, PPP)') +
+  ylab('CHE (Dollars, PPP)')
+```
+
+### MMR vs CHE
+
+We do see a pattern where higher reported health expenditures correlate with lower maternal mortality and inversely, those countries (and years) with lower CHE see higher MMR.
+
+```{r}
+ggplot(mmr_df, aes(CHE, MMR)) +
+  geom_point() +
+  labs(title='Maternal Mortality Rate (MMR) vs Country Health Expenditure (PPP)') +
+  xlab('CHE (Dollars, PPP)') +
+  ylab('MMR (per 100k live births)')
+```
+
+### Maternal Deaths vs CHE
+
+The death count increases most dramatically with lower health expenditures and population impacts.
+
+```{r}
+ggplot(mmr_df, aes(CHE, Deaths)) +
+  geom_point() +
+  labs(title='Maternal Deaths vs Country Health Expenditures (PPP)') +
+  xlab('CHE (Dollars, PPP)') +
+  ylab('Maternal Deaths')
+```
+
+### MMR vs GDP
+
+Generally the Maternal Mortality rate is higher with counties having lower GDP.
+
+```{r}
+ggplot(mmr_df, aes(GDP, MMR)) +
+  geom_point() +
+  labs(title='Maternal Mortality Rate (MMR) vs Country GDP (Millions, PPP)') +
+  xlab('GDP (Millions, PPP)') +
+  ylab('MMR (per 100k live births)')
+```
+
+### Skilled Attendants and MMR
+
+While we don't have many datapoints, there does appear to be a trend with lowered materal mortality when there is a higher percentage of births managed by a health professional. That said, a Skilled Attendant at birth may only be able to do so much ... there may be affects earlier in pregnancy leading to mortality.
+
+```{r}
+ggplot(mmr_df %>% drop_na(), aes(SAB_Pct, MMR)) +
+  geom_point() +
+  labs(title='Maternal Mortality Rate vs Skilled Attendants at Birth (SAB)', 
+       caption='note, we only have 98 datapoints with both SAB and MMR')+
+  xlab('Skilled Attendant at Birth (%)') +
+  ylab('MMR (per 100k live births)')
+```
+
+### Skilled Attendants and Deaths
+
+As with mortality rate, we generally see fewer reported deaths as the percent of births are handled by a trained health professional.  
+
+```{r}
+ggplot(mmr_df %>% drop_na(), aes(SAB_Pct, Deaths)) +
+  geom_point() + 
+  scale_y_continuous(labels = comma) +
+  ylim(0, 300000) +
+  labs(title='Maternal Deaths vs Skilled Attendants at Birth (SAB)') +
+  xlab('Skilled Attendant at Birth (%)') +
+  ylab('Maternal Deaths')
+```
+
+## Summary
+
+I started this project with a single core dataset with MMR by country and year.  As I tried to answer questions, I found I needed additional data which lead to chasing down populations, birthrates and country codes.  Only then did I seek out the Skilled Attendants and Health Spending data to look for patterns.  Worldwide, the reported maternal mortality rate has dropped by ~40% which broadly shows up in my histograms.  While the overall mortality rate is decreasing, some countries are greatly improving (e.g. India) while others have more deaths (e.g. Nigeria).  Looking at health spend, GDP and presence of Skilled Attendants during birth, the later had the most notable correlation, but data was scarce.  The NGO I worked with was targeting training of health workers, and from this quick survey of data, that is likely a fruitful approach to the problem. 
+
+## References
+
+- [World Health Expediture Database](http://apps.who.int/nha/database/ViewData/Indicators/en)
+- [Trends in estimates of maternal mortality ratio (maternal deaths per 100,000 live births) 2000-2017 (September 2019)](https://data.unicef.org/wp-content/uploads/2015/11/MMR-trend-estimates-2000-2017_MMEIG-2.xlsx)
+- [All adolescents maternal health indicators (July 2018)](https://data.unicef.org/wp-content/uploads/2018/07/maternal_health_adolescents_indicators_April-2016_250d599.xlsx)
+- [WHO Health Expenditures by Country](http://apps.who.int/nha/database/ViewData/Indicators/en)
+- [Birthrate Data by Country](http://api.worldbank.org/v2/en/indicator/SP.DYN.CBRT.IN?downloadformat=excel)
+- [List_of_countries_by_past_and_future_population](https://en.wikipedia.org/wiki/List_of_countries_by_past_and_future_population)
+- [World ISO3 Country Codes](https://www.iban.com/country-codes)

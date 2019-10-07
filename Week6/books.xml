@@ -1,0 +1,322 @@
+<books>
+    <book>
+        <title>Relic</title>
+        <authors>
+            <author>Douglas Preston</author>
+            <author>Lincoln Child</author>
+        </authors>
+        <date>1995</date>
+        <genres>
+            <genre>Thriller</genre>
+            <genre>Mystery</genre>
+            <genre>Supernatural</genre>
+        </genres>
+        <tags>
+            <tag>Pendergast</tag>
+        </tags>
+    </book>
+    <book>
+        <title>Reliquary</title>
+        <authors>
+            <author>Douglas Preston</author>
+            <author>Lincoln Child</author>
+        </authors>
+        <date>1997</date>
+        <genres>
+            <genre>Thriller</genre>
+            <genre>Mystery</genre>
+            <genre>Supernatural</genre>
+        </genres>
+        <tags>
+            <tag>Pendergast</tag>
+        </tags>
+    </book>
+    <book>
+        <title>The Cabinet of Curiosities</title>
+        <authors>
+            <author>Douglas Preston</author>
+            <author>Lincoln Child</author>
+        </authors>
+        <date>2002</date>
+        <genres>
+            <genre>Thriller</genre>
+            <genre>Mystery</genre>
+            <genre>Supernatural</genre>
+        </genres>
+        <tags>
+            <tag>Pendergast</tag>
+        </tags>
+    </book>
+    <book>
+        <title>Still Life with Crows</title>
+        <authors>
+            <author>Douglas Preston</author>
+            <author>Lincoln Child</author>
+        </authors>
+        <date>2003</date>
+        <genres>
+            <genre>Thriller</genre>
+            <genre>Mystery</genre>
+            <genre>Supernatural</genre>
+        </genres>
+        <tags>
+            <tag>Pendergast</tag>
+        </tags>
+    </book>
+    <book>
+        <title>Brimstone</title>
+        <authors>
+            <author>Douglas Preston</author>
+            <author>Lincoln Child</author>
+        </authors>
+        <date>2004</date>
+        <genres>
+            <genre>Thriller</genre>
+            <genre>Mystery</genre>
+            <genre>Supernatural</genre>
+        </genres>
+        <tags>
+            <tag>Diogenes Trilogy</tag>
+        </tags>
+    </book>
+    <book>
+        <title>Dance of Death</title>
+        <authors>
+            <author>Douglas Preston</author>
+            <author>Lincoln Child</author>
+        </authors>
+        <date>2005</date>
+        <genres>
+            <genre>Thriller</genre>
+            <genre>Mystery</genre>
+            <genre>Supernatural</genre>
+        </genres>
+        <tags>
+            <tag>Diogenes Trilogy</tag>
+        </tags>
+    </book>
+    <book>
+        <title>The Book of the Dead</title>
+        <authors>
+            <author>Douglas Preston</author>
+            <author>Lincoln Child</author>
+        </authors>
+        <date>2006</date>
+        <genres>
+            <genre>Thriller</genre>
+            <genre>Mystery</genre>
+            <genre>Supernatural</genre>
+        </genres>
+        <tags>
+            <tag>Diogenes Trilogy</tag>
+        </tags>
+    </book>
+    <book>
+        <title>The Wheel of Darkness</title>
+        <authors>
+            <author>Douglas Preston</author>
+            <author>Lincoln Child</author>
+        </authors>
+        <date>2007</date>
+        <genres>
+            <genre>Thriller</genre>
+            <genre>Mystery</genre>
+            <genre>Supernatural</genre>
+        </genres>
+        <tags>
+            <tag>Pendergast</tag>
+        </tags>
+    </book>
+    <book>
+        <title>Cemetary Dance</title>
+        <authors>
+            <author>Douglas Preston</author>
+            <author>Lincoln Child</author>
+        </authors>
+        <date>2009</date>
+        <genres>
+            <genre>Thriller</genre>
+            <genre>Mystery</genre>
+            <genre>Supernatural</genre>
+        </genres>
+        <tags>
+            <tag>Pendergast</tag>
+        </tags>
+    </book>
+    <book>
+        <title>Fever Dream</title>
+        <authors>
+            <author>Douglas Preston</author>
+            <author>Lincoln Child</author>
+        </authors>
+        <date>2010</date>
+        <genres>
+            <genre>Thriller</genre>
+            <genre>Mystery</genre>
+            <genre>Supernatural</genre>
+        </genres>
+        <tags>
+            <tag>Helen Trilogy</tag>
+        </tags>
+    </book>
+    <book>
+        <title>Cold Vengence</title>
+        <authors>
+            <author>Douglas Preston</author>
+            <author>Lincoln Child</author>
+        </authors>
+        <date>2011</date>
+        <genres>
+            <genre>Thriller</genre>
+            <genre>Mystery</genre>
+            <genre>Supernatural</genre>
+        </genres>
+        <tags>
+            <tag>Helen Trilogy</tag>
+        </tags>
+    </book>
+    <book>
+        <title>Two Graves</title>
+        <authors>
+            <author>Douglas Preston</author>
+            <author>Lincoln Child</author>
+        </authors>
+        <date>2012</date>
+        <genres>
+            <genre>Thriller</genre>
+            <genre>Mystery</genre>
+            <genre>Supernatural</genre>
+        </genres>
+        <tags>
+            <tag>Helen Trilogy</tag>
+        </tags>
+    </book>
+    <book>
+        <title>Extraction</title>
+        <authors>
+            <author>Douglas Preston</author>
+            <author>Lincoln Child</author>
+        </authors>
+        <date>2012</date>
+        <genres>
+            <genre>Thriller</genre>
+            <genre>Mystery</genre>
+            <genre>Supernatural</genre>
+        </genres>
+        <tags>
+            <tag>Short</tag>
+        </tags>
+    </book>
+    <book>
+        <title>White Fire</title>
+        <authors>
+            <author>Douglas Preston</author>
+            <author>Lincoln Child</author>
+        </authors>
+        <date>2013</date>
+        <genres>
+            <genre>Thriller</genre>
+            <genre>Mystery</genre>
+            <genre>Supernatural</genre>
+        </genres>
+        <tags>
+            <tag>Pendergast</tag>
+        </tags>
+    </book>
+    <book>
+        <title>Blue Labyrinth</title>
+        <authors>
+            <author>Douglas Preston</author>
+            <author>Lincoln Child</author>
+        </authors>
+        <date>2014</date>
+        <genres>
+            <genre>Thriller</genre>
+            <genre>Mystery</genre>
+            <genre>Supernatural</genre>
+        </genres>
+        <tags>
+            <tag>Pendergast</tag>
+        </tags>
+    </book>
+    <book>
+        <title>Crimson Shore</title>
+        <authors>
+            <author>Douglas Preston</author>
+            <author>Lincoln Child</author>
+        </authors>
+        <date>2015</date>
+        <genres>
+            <genre>Thriller</genre>
+            <genre>Mystery</genre>
+            <genre>Supernatural</genre>
+        </genres>
+        <tags>
+            <tag>Pendergast</tag>
+        </tags>
+    </book>
+    <book>
+        <title>The Obsidian Chamber</title>
+        <authors>
+            <author>Douglas Preston</author>
+            <author>Lincoln Child</author>
+        </authors>
+        <date>2017</date>
+        <genres>
+            <genre>Thriller</genre>
+            <genre>Mystery</genre>
+            <genre>Supernatural</genre>
+        </genres>
+        <tags>
+            <tag>Pendergast</tag>
+        </tags>
+    </book>
+    <book>
+        <title>City of Endless Night</title>
+        <authors>
+            <author>Douglas Preston</author>
+            <author>Lincoln Child</author>
+        </authors>
+        <date>2018</date>
+        <genres>
+            <genre>Thriller</genre>
+            <genre>Mystery</genre>
+            <genre>Supernatural</genre>
+        </genres>
+        <tags>
+            <tag>Pendergast</tag>
+        </tags>
+    </book>
+    <book>
+        <title>Verses for the Dead</title>
+        <authors>
+            <author>Douglas Preston</author>
+            <author>Lincoln Child</author>
+        </authors>
+        <date>2018</date>
+        <genres>
+            <genre>Thriller</genre>
+            <genre>Mystery</genre>
+            <genre>Supernatural</genre>
+        </genres>
+        <tags>
+            <tag>Pendergast</tag>
+        </tags>
+    </book>
+    <book>
+        <title>Old Bones</title>
+        <authors>
+            <author>Douglas Preston</author>
+            <author>Lincoln Child</author>
+        </authors>
+        <date>2019</date>
+        <genres>
+            <genre>Thriller</genre>
+            <genre>Mystery</genre>
+            <genre>Supernatural</genre>
+        </genres>
+        <tags>
+            <tag>Nora Kelly</tag>
+        </tags>
+    </book>
+</books>

@@ -1,0 +1,145 @@
+{
+   "books":
+   [
+      {
+         "title"  : "Relic",
+         "authors": ["Douglas Preston", "Lincoln Child"],
+         "date"   : 1995,
+         "genre"  : ["Thriller", "Mystery", "Supernatural"],
+         "tags"   : ["Pendergast"]
+      },
+      {
+         "title"  : "Reliquary",
+         "authors": ["Douglas Preston", "Lincoln Child"],
+         "date"   : 1997,
+         "genre"  : ["Thriller", "Mystery", "Supernatural"],
+         "tags"   : ["Pendergast"]
+      },
+      {
+         "title"  : "The Cabinet of Curiosities",
+         "authors": ["Douglas Preston", "Lincoln Child"],
+         "date"   : 2002,
+         "genre"  : ["Thriller", "Mystery", "Supernatural"],
+         "tags"   : ["Pendergast"]
+      },
+      {
+         "title"  : "Still Life with Crows",
+         "authors": ["Douglas Preston", "Lincoln Child"],
+         "date"   : 2003,
+         "genre"  : ["Thriller", "Mystery", "Supernatural"],
+         "tags"   : ["Pendergast"]
+      },
+      {
+         "title"  : "Brimstone",
+         "authors": ["Douglas Preston", "Lincoln Child"],
+         "date"   : 2004,
+         "genre"  : ["Thriller", "Mystery", "Supernatural"],
+         "tags"   : ["Diogenes Trilogy"]
+      },
+      {
+         "title"  : "Dance of Death",
+         "authors": ["Douglas Preston", "Lincoln Child"],
+         "date"   : 2005,
+         "genre"  : ["Thriller", "Mystery", "Supernatural"],
+         "tags"   : ["Diogenes Trilogy"]
+      },
+      {
+         "title"  : "The Book of the Dead",
+         "authors": ["Douglas Preston", "Lincoln Child"],
+         "date"   : 2006,
+         "genre"  : ["Thriller", "Mystery", "Supernatural"],
+         "tags"   : ["Diogenes Trilogy"]
+      },
+      {
+         "title"  : "The Wheel of Darkness",
+         "authors": ["Douglas Preston", "Lincoln Child"],
+         "date"   : 2007,
+         "genre"  : ["Thriller", "Mystery", "Supernatural"],
+         "tags"   : ["Pendergast"]
+      },
+      {
+         "title"  : "Cemetary Dance",
+         "authors": ["Douglas Preston", "Lincoln Child"],
+         "date"   : 2009,
+         "genre"  : ["Thriller", "Mystery", "Supernatural"],
+         "tags"   : ["Pendergast"]
+      },
+      {
+         "title"  : "Fever Dream",
+         "authors": ["Douglas Preston", "Lincoln Child"],
+         "date"   : 2011,
+         "genre"  : ["Thriller", "Mystery", "Supernatural"],
+         "tags"   : ["Helen Trilogy"]
+      },
+      {
+         "title"  : "Cold Vengence",
+         "authors": ["Douglas Preston", "Lincoln Child"],
+         "date"   : 2012,
+         "genre"  : ["Thriller", "Mystery", "Supernatural"],
+         "tags"   : ["Helen Trilogy"]
+      },
+      {
+         "title"  : "Two Graves",
+         "authors": ["Douglas Preston", "Lincoln Child"],
+         "date"   : 2012,
+         "genre"  : ["Thriller", "Mystery", "Supernatural"],
+         "tags"   : ["Helen Trilogy"]
+      },
+      {
+         "title"  : "Extraction",
+         "authors": ["Douglas Preston", "Lincoln Child"],
+         "date"   : 2012,
+         "genre"  : ["Thriller", "Mystery", "Supernatural"],
+         "tags"   : ["Short"]
+      },
+      {
+         "title"  : "White Fire",
+         "authors": ["Douglas Preston", "Lincoln Child"],
+         "date"   : 2013,
+         "genre"  : ["Thriller", "Mystery", "Supernatural"],
+         "tags"   : ["Short"]
+      },
+      {
+         "title"  : "Blue Labyrinth",
+         "authors": ["Douglas Preston", "Lincoln Child"],
+         "date"   : 2014,
+         "genre"  : ["Thriller", "Mystery", "Supernatural"],
+         "tags"   : ["Short"]
+      },
+      {
+         "title"  : "Crimson Shore",
+         "authors": ["Douglas Preston", "Lincoln Child"],
+         "date"   : 2015,
+         "genre"  : ["Thriller", "Mystery", "Supernatural"],
+         "tags"   : ["Pendergast"]
+      },
+      {
+         "title"  : "The Obsidian Chamber",
+         "authors": ["Douglas Preston", "Lincoln Child"],
+         "date"   : 2017,
+         "genre"  : ["Thriller", "Mystery", "Supernatural"],
+         "tags"   : ["Pendergast"]
+      },
+      {
+         "title"  : "City of Endless Night",
+         "authors": ["Douglas Preston", "Lincoln Child"],
+         "date"   : 2018,
+         "genre"  : ["Thriller", "Mystery", "Supernatural"],
+         "tags"   : ["Pendergast"]
+      },
+      {
+         "title"  : "Verses for the Dead",
+         "authors": ["Douglas Preston", "Lincoln Child"],
+         "date"   : 2018,
+         "genre"  : ["Thriller", "Mystery", "Supernatural"],
+         "tags"   : ["Pendergast"]
+      },
+      {
+         "title"  : "Old Bones",
+         "authors": ["Douglas Preston", "Lincoln Child"],
+         "date"   : 2019,
+         "genre"  : ["Thriller", "Mystery", "Supernatural"],
+         "tags"   : ["Nora Kelly"]
+      }
+   ]
+}

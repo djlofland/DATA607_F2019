@@ -1,0 +1,246 @@
+---
+title: "DATA 607 Assignment 5"
+subtitle: "Tidying and Tansforming Data"
+author: 'Donny Lofland'
+date: '9/27/2019'
+output:
+  html_document:
+    theme: cerulean
+    highlight: pygments
+    css: ./lab.css
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Source files: [https://github.com/djlofland/DATA607_F2019/tree/master/Assignment5](https://github.com/djlofland/DATA607_F2019/tree/master/Assignment5)
+
+## Assignment
+
+![Airline Data](airline_table.png)
+
+The chart above describes arrival delays for two airlines across five destinations. Your task is to:
+
+1. Create a .CSV file (or optionally, a MySQL database!) that includes all of the information above.
+You’re encouraged to use a “wide” structure similar to how the information appears above, so
+that you can practice tidying and transformations as described below.
+
+2. Read the information from your .CSV file into R, and use tidyr and dplyr as needed to tidy
+and transform your data.
+
+3. Perform analysis to compare the arrival delays for the two airlines.
+
+4. Your code should be in an R Markdown file, posted to rpubs.com, and should include narrative
+descriptions of your data cleanup work, analysis, and conclusions. Please include in your
+homework submission: **The URL to the .Rmd file in your GitHub repository** and the **URL for your rpubs.com web page**.
+
+## Project
+
+### Setup R
+
+```{r}
+library(tidyverse)
+library(RMySQL)      # Older MysQL library (note: I could NOT get the RMariaDB lib to work)
+library(formattable) # Pretty print tables
+```
+
+
+### Create Database
+
+I created a MySQL database and loaded the table data from above.  Here is the DB structure behind the scenes:
+
+![airline data](airline_data.png)
+
+SQL source file: [airline_data.sql](airline_data.sql)
+
+### Load Data
+
+We first want to check if the data has already been extracted from our DB and cached as a local .csv file.  If the csv file is available, use that.  If it's not, then we will load the data from our DB and cache as a local csv.  This allows me to develop the RMarkdown locally, where I have access to the DB, then publish and allow others to run the code without access the the DB.
+
+*Note: I created several .env variables (MYSQL_USER, MYSQL_PASSWORD, and MYSQL_HOST) in my `.Renviron` file in my home folder.  This prevents leaking sensitive info in code.*
+
+```{r load_data}
+# cached local airline csv data file
+csv_fn <- "airline_data.csv"
+
+# Some variables to help with flow control
+foundCSV <- FALSE
+dbError <- FALSE
+
+# Check if we have a local copy of the data available to load
+if(file.exists(csv_fn)) {
+  msg <- paste('Using locally cached', csv_fn)
+  foundCSV <- TRUE
+} else {
+  msg <- paste('Cached copy of', csv_fn, 'not found.  Try loading from DB ...')
+}
+
+print(msg)
+
+# The local csv wasn't found - try loading the data from MySQL and saving cached copy for future runs.
+if (!foundCSV) {
+
+  # Connect to our MySQL DB
+  con <- dbConnect(RMySQL::MySQL(), user=Sys.getenv("MYSQL_USER"), password=Sys.getenv("MYSQL_PASSWORD"), host=Sys.getenv("MYSQL_HOST"))
+
+  # Attempt to connect to DATA607 DB
+  result = tryCatch({
+      res <- dbSendQuery(con, 'USE DATA607;')
+  }, error = function(e) {
+      dbError <- TRUE
+  })
+
+  # If we succcessfully connected to the DB (no errors), then attempt to query data
+  if (!dbError) {
+    # Load the airline data into a local DF
+    sql <- "SELECT * FROM airline_data ORDER BY id;"
+    res <- dbSendQuery(con, sql)
+
+    airline_data_df <- dbFetch(res)
+    
+    # Save the data to a local file
+    write.csv(airline_data_df,csv_fn, row.names=FALSE )
+  }
+
+# CSV file found - load into a DF    
+} else {
+  airline_data_df <- read.csv(csv_fn, header=TRUE)
+}
+
+# Did we encounter any errors?
+if (dbError & !foundCSV) {
+  msg <- "We encountered an error and couldn't load the airline data."
+} else {
+  msg <- "Data loaded."
+}
+
+print(msg)
+```
+
+### Verify Airline Data
+
+```{r}
+airline_data <- as_tibble(airline_data_df)
+formattable(airline_data)
+```
+
+### Tidy & Transform
+
+```{r}
+
+# Steps:
+# 1. use gather() to convert from wide to long and turn city columns in to a variable
+# 2. use select() to remove the unecessary id column brought in from the DB
+# 3. use spread() to widen status into columns (delayed and `on time`)
+airline_data2 <- airline_data %>% 
+  gather(city, count, -id, -airline, -status) %>% 
+  select(airline, status, city, count) %>% 
+  spread(status, count)
+
+formattable(airline_data2)
+```
+
+#### Add Additional Features
+
+Add summary columns for **delay_rate** and **ontime_rate** for each Airline/City
+
+```{r}
+airline_data3 <- airline_data2 %>%
+  mutate(delay_rate = delayed / (delayed + `on time`),
+         ontime_rate = `on time` / (delayed + `on time`),
+         flights = delayed + `on time`)
+formattable(airline_data3)
+```
+
+### Analysis
+
+#### Delays by Airline (Overall)
+
+I'm curious overall how the airlines performed.
+
+```{r}
+# Group the data by airline
+airline_data4 <- airline_data3 %>%
+  select(airline, delay_rate, ontime_rate) %>%
+  group_by(airline) 
+
+# Calculate the mean of the rates over cities
+tbl <- airline_data4 %>% 
+  summarize(delay = mean(delay_rate), ontime=mean(ontime_rate)) %>%
+  arrange(desc(delay))
+
+# Print the table
+formattable(tbl)
+
+# Barplot
+ggplot(airline_data4, aes(x=reorder(airline, -delay_rate), y=delay_rate, fill=airline)) +
+  ggtitle("Delay Rate by Airline (All Cities)") +
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  geom_bar(position='dodge', stat="identity") + 
+  xlab('Airline') + 
+  ylab('Percent of Flights Delayed')
+```
+
+#### Delays by City (Overall)
+
+Let's see if there are differences in flight delays by city. 
+
+```{r}
+# Group the data by airline
+airline_data4 <- airline_data3 %>%
+  select(airline, city, delay_rate, ontime_rate) %>%
+  group_by(city) 
+
+# Calculate the mean of the rates over airlines
+tbl <- airline_data4 %>% 
+  summarize(delay = mean(delay_rate), ontime=mean(ontime_rate)) %>%
+  arrange(desc(delay))
+
+# Print the table
+formattable(tbl)
+
+# barplot
+ggplot(airline_data4, aes(x=reorder(city, -delay_rate), y=delay_rate, fill=city)) +
+  ggtitle("Delay Rate by City (All Airlines)") +
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  geom_bar(position='dodge', stat="identity") + 
+  xlab('City') + 
+  ylab('Percent of Flights Delayed')
+```
+
+#### Delays by Airline & City
+
+Let's look side-by-side for each city and see how the airlines performed against each other.
+
+```{r}
+# Paired bar plot
+ggplot(airline_data3, aes(fill=airline, y=delay_rate, x=reorder(city, -delay_rate))) +
+  ggtitle("Delay Rate by City") +
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  geom_bar(position='dodge', stat="identity") +
+  xlab('City') + 
+  ylab('Percent of Flights Delayed')
+```
+
+#### Delays vs Total Flights
+
+I wonder if delays just track with overall traffic, i.e. as # of flights increase, there are more delays?  Each point represents a single airpoint and we are plotting the delay rate vs the total number of flights by that airline into each airport.
+
+```{r}
+ggplot(airline_data3, aes(y=delay_rate, x=flights, color=airline)) +
+  ggtitle("Delay vs Total Flights") +
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  geom_point() +
+  xlab('Total Flights') + 
+  ylab('Delay Rate')
+```
+
+
+## Conclusions
+
+- We see that overall AM WEST has significantly higher delays across all cities compared with ALASKA airlines.
+- There is a clear difference in delay rate by city ranging from ~8% up to ~30%.
+- There doesn't seem to be any correleation between the total number of flights by an airline into a specific airport and the percent of delayed planes they experience.

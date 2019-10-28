@@ -66,7 +66,8 @@ movie_picks <- fromJSON(url, flatten = TRUE) %>%
 
 # Load Movie Reviews
 
-We will be working with the NYT Movies API's
+We will be working with the NYT Movies API's.  Note that the NYUT API has throttlelimits that only allow 6 queries/min and a maximum of 4000 queries per day.  In this example, I setup a loop to see if I could scrape all the Movie Reviews.  After several attempts, its clear that if I really want **all** movie reviews, I'll have to babysit the process for the better part of a day.  So, I allowed it to run 
+758 times at 20 reviews pare page for a total of 15160 rows (or movie reviews).  This is more than sufficient for proof of concept in this project.
 
 ```{r load_reviews}
 # Check if we have a local copy of the data available to load
@@ -77,7 +78,6 @@ if(file.exists(local_cache_fn)) {
   msg <- paste('Found cached copy: ', local_cache_fn, sep='')
   isCacheFound <- TRUE
 }
-
 
 if(!isCacheFound) {
   # Kick of process to download data from NYT API
@@ -133,9 +133,13 @@ if(!isCacheFound) {
 ## Cleanup Reviews  
 
 ```{r analysis}
-# drop rows with missing dates
+# drop rows with missing dates - since I'm not really interested in dates and am not
+# doing any analysis where loss of rows might affect interpretation, it's safe to just
+# drop rows with any missing dates.  Note: There are also nulls in the rating column for movies that didn't receive an official mpaa rating letter.  For these, I'll replace nulls with 'not rated'
 data_df2 <- data_df %>% 
-  drop_na(results.publication_date, results.opening_date, results.date_updated)
+  drop_na(results.publication_date, results.opening_date, results.date_updated) %>%
+  replace_na(list(results.mpaa_rating = "Not Rated"))
+
 ```
 
 # Analysis
@@ -143,7 +147,7 @@ data_df2 <- data_df %>%
 ## Top 10 Posting Critics  
 
 ```{r top_10_critics}
-# drop rows with missing dates
+# How many reviews were authored by critic - show the top 10 most prolific
 critics_counts <- data_df2 %>%
   group_by(results.byline) %>%
   summarize(review_count = length(results.byline)) %>%
@@ -153,3 +157,17 @@ critics_counts <- data_df2 %>%
 critics_counts
 ```
 
+## Top 10 Posting Critics  
+
+```{r rating_by_critic}
+# How many reviews did critics post for each mpaa rating?
+rating_counts <- data_df2 %>%
+  group_by(results.byline, results.mpaa_rating) %>%
+  summarize(rating_count = length(results.mpaa_rating)) %>%
+  arrange(results.byline) %>%
+  spread(results.mpaa_rating, rating_count) %>%
+  select(results.byline, G, PG, `PG-13`, R, `NC-17`, X, `Not Rated`) %>%
+  replace_na(list(G = 0,PG=0, `PG-13`=0, R=0, `NC-17`=0, X=0, `Not Rated`=0))
+
+rating_counts
+```

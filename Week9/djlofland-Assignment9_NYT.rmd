@@ -136,11 +136,21 @@ if(!isCacheFound) {
 ```{r analysis}
 # drop rows with missing dates - since I'm not really interested in dates and am not
 # doing any analysis where loss of rows might affect interpretation, it's safe to just
-# drop rows with any missing dates.  Note: There are also nulls in the rating column for movies that didn't receive an official mpaa rating letter.  For these, I'll replace nulls with 'not rated'
+# drop rows with any missing dates.  Note: There are also nulls in the rating column 
+# for movies that didn't receive an official mpaa rating letter.  
+# For these, I'll replace nulls with 'not rated'.  Next, teh ByLines are a mess - I'll do some
+# quick spot cleanup.
 data_df2 <- data_df %>% 
   drop_na(results.publication_date, results.opening_date, results.date_updated) %>%
-  replace_na(list(results.mpaa_rating = "Not Rated"))
-
+  replace_na(list(results.mpaa_rating = "Not Rated")) %>%
+  mutate(results.byline = str_to_upper(results.byline)) %>%
+  mutate(results.byline = str_replace_all(results.byline, "[\\.,]", "")) %>%
+  mutate(results.byline = str_replace_all(results.byline, "&#160;", "")) %>%
+  mutate(results.byline = str_replace_all(results.byline, "BY ", "")) %>%
+  mutate(results.byline = str_replace_all(results.byline, "&NBSP;", "")) %>%
+  mutate(results.byline = str_trim(results.byline, side=c("both"))) %>%
+  mutate(results.byline = str_replace_all(results.byline, "[;]", "")) %>%
+  mutate(results.byline = str_squish(results.byline))
 ```
 
 # Analysis

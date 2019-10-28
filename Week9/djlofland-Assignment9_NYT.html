@@ -1776,10 +1776,21 @@ div.tocify {
 <h2>Cleanup Reviews</h2>
 <div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="co"># drop rows with missing dates - since I&#39;m not really interested in dates and am not</span></span>
 <span id="cb19-2"><a href="#cb19-2"></a><span class="co"># doing any analysis where loss of rows might affect interpretation, it&#39;s safe to just</span></span>
-<span id="cb19-3"><a href="#cb19-3"></a><span class="co"># drop rows with any missing dates.  Note: There are also nulls in the rating column for movies that didn&#39;t receive an official mpaa rating letter.  For these, I&#39;ll replace nulls with &#39;not rated&#39;</span></span>
-<span id="cb19-4"><a href="#cb19-4"></a>data_df2 &lt;-<span class="st"> </span>data_df <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb19-5"><a href="#cb19-5"></a><span class="st">  </span><span class="kw">drop_na</span>(results.publication_date, results.opening_date, results.date_updated) <span class="op">%&gt;%</span></span>
-<span id="cb19-6"><a href="#cb19-6"></a><span class="st">  </span><span class="kw">replace_na</span>(<span class="kw">list</span>(<span class="dt">results.mpaa_rating =</span> <span class="st">&quot;Not Rated&quot;</span>))</span></code></pre></div>
+<span id="cb19-3"><a href="#cb19-3"></a><span class="co"># drop rows with any missing dates.  Note: There are also nulls in the rating column </span></span>
+<span id="cb19-4"><a href="#cb19-4"></a><span class="co"># for movies that didn&#39;t receive an official mpaa rating letter.  </span></span>
+<span id="cb19-5"><a href="#cb19-5"></a><span class="co"># For these, I&#39;ll replace nulls with &#39;not rated&#39;.  Next, teh ByLines are a mess - I&#39;ll do some</span></span>
+<span id="cb19-6"><a href="#cb19-6"></a><span class="co"># quick spot cleanup.</span></span>
+<span id="cb19-7"><a href="#cb19-7"></a>data_df2 &lt;-<span class="st"> </span>data_df <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb19-8"><a href="#cb19-8"></a><span class="st">  </span><span class="kw">drop_na</span>(results.publication_date, results.opening_date, results.date_updated) <span class="op">%&gt;%</span></span>
+<span id="cb19-9"><a href="#cb19-9"></a><span class="st">  </span><span class="kw">replace_na</span>(<span class="kw">list</span>(<span class="dt">results.mpaa_rating =</span> <span class="st">&quot;Not Rated&quot;</span>)) <span class="op">%&gt;%</span></span>
+<span id="cb19-10"><a href="#cb19-10"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">results.byline =</span> <span class="kw">str_to_upper</span>(results.byline)) <span class="op">%&gt;%</span></span>
+<span id="cb19-11"><a href="#cb19-11"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">results.byline =</span> <span class="kw">str_replace_all</span>(results.byline, <span class="st">&quot;[</span><span class="ch">\\</span><span class="st">.,]&quot;</span>, <span class="st">&quot;&quot;</span>)) <span class="op">%&gt;%</span></span>
+<span id="cb19-12"><a href="#cb19-12"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">results.byline =</span> <span class="kw">str_replace_all</span>(results.byline, <span class="st">&quot;&amp;#160;&quot;</span>, <span class="st">&quot;&quot;</span>)) <span class="op">%&gt;%</span></span>
+<span id="cb19-13"><a href="#cb19-13"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">results.byline =</span> <span class="kw">str_replace_all</span>(results.byline, <span class="st">&quot;BY &quot;</span>, <span class="st">&quot;&quot;</span>)) <span class="op">%&gt;%</span></span>
+<span id="cb19-14"><a href="#cb19-14"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">results.byline =</span> <span class="kw">str_replace_all</span>(results.byline, <span class="st">&quot;&amp;NBSP;&quot;</span>, <span class="st">&quot;&quot;</span>)) <span class="op">%&gt;%</span></span>
+<span id="cb19-15"><a href="#cb19-15"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">results.byline =</span> <span class="kw">str_trim</span>(results.byline, <span class="dt">side=</span><span class="kw">c</span>(<span class="st">&quot;both&quot;</span>))) <span class="op">%&gt;%</span></span>
+<span id="cb19-16"><a href="#cb19-16"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">results.byline =</span> <span class="kw">str_replace_all</span>(results.byline, <span class="st">&quot;[;]&quot;</span>, <span class="st">&quot;&quot;</span>)) <span class="op">%&gt;%</span></span>
+<span id="cb19-17"><a href="#cb19-17"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">results.byline =</span> <span class="kw">str_squish</span>(results.byline))</span></code></pre></div>
 </div>
 </div>
 <div id="analysis" class="section level1">
@@ -1809,10 +1820,26 @@ review_count
 <tbody>
 <tr>
 <td style="text-align:left;">
-Janet Maslin
+STEPHEN HOLDEN
 </td>
 <td style="text-align:center;">
-1029
+1496
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+JANET MASLIN
+</td>
+<td style="text-align:center;">
+1211
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+A O SCOTT
+</td>
+<td style="text-align:center;">
+1068
 </td>
 </tr>
 <tr>
@@ -1820,7 +1847,7 @@ Janet Maslin
 MANOHLA DARGIS
 </td>
 <td style="text-align:center;">
-841
+851
 </td>
 </tr>
 <tr>
@@ -1829,30 +1856,6 @@ JEANNETTE CATSOULIS
 </td>
 <td style="text-align:center;">
 774
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Stephen Holden
-</td>
-<td style="text-align:center;">
-772
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-A. O. SCOTT
-</td>
-<td style="text-align:center;">
-742
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-STEPHEN HOLDEN
-</td>
-<td style="text-align:center;">
-722
 </td>
 </tr>
 <tr>
@@ -1881,10 +1884,18 @@ NEIL GENZLINGER
 </tr>
 <tr>
 <td style="text-align:left;">
-A. O. Scott
+VINCENT CANBY
 </td>
 <td style="text-align:center;">
-321
+304
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ELVIS MITCHELL
+</td>
+<td style="text-align:center;">
+284
 </td>
 </tr>
 </tbody>
@@ -1938,68 +1949,19 @@ Not Rated
 <tbody>
 <tr>
 <td style="text-align:left;">
-<span style="color: grey; font-weight: bold">A. O. Scott </span>
+<span style="color: grey; font-weight: bold">A O SCOTT </span>
 </td>
 <td style="text-align:center;">
-9
+18
 </td>
 <td style="text-align:center;">
-25
+104
 </td>
 <td style="text-align:center;">
-117
+369
 </td>
 <td style="text-align:center;">
-134
-</td>
-<td style="text-align:center;">
-1
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-35
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: grey; font-weight: bold">A. O. SCOTT </span>
-</td>
-<td style="text-align:center;">
-9
-</td>
-<td style="text-align:center;">
-79
-</td>
-<td style="text-align:center;">
-251
-</td>
-<td style="text-align:center;">
-302
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-101
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: grey; font-weight: bold">A.&amp;#160;O. SCOTT </span>
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-2
+438
 </td>
 <td style="text-align:center;">
 1
@@ -2008,36 +1970,7 @@ Not Rated
 0
 </td>
 <td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-1
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: grey; font-weight: bold">A.O. SCOTT </span>
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-13
-</td>
-<td style="text-align:center;">
-56
-</td>
-<td style="text-align:center;">
-98
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-50
+138
 </td>
 </tr>
 <tr>
@@ -2120,32 +2053,6 @@ Not Rated
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="color: grey; font-weight: bold">Andy Webster </span>
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-1
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
 <span style="color: grey; font-weight: bold">ANDY WEBSTER </span>
 </td>
 <td style="text-align:center;">
@@ -2155,7 +2062,7 @@ Not Rated
 22
 </td>
 <td style="text-align:center;">
-40
+41
 </td>
 <td style="text-align:center;">
 45
@@ -2172,54 +2079,28 @@ Not Rated
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="color: grey; font-weight: bold">Anita Gates </span>
-</td>
-<td style="text-align:center;">
-6
-</td>
-<td style="text-align:center;">
-7
-</td>
-<td style="text-align:center;">
-6
-</td>
-<td style="text-align:center;">
-13
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-10
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
 <span style="color: grey; font-weight: bold">ANITA GATES </span>
-</td>
-<td style="text-align:center;">
-3
-</td>
-<td style="text-align:center;">
-3
-</td>
-<td style="text-align:center;">
-3
 </td>
 <td style="text-align:center;">
 9
 </td>
 <td style="text-align:center;">
-0
+10
+</td>
+<td style="text-align:center;">
+10
+</td>
+<td style="text-align:center;">
+22
 </td>
 <td style="text-align:center;">
 0
 </td>
 <td style="text-align:center;">
-20
+0
+</td>
+<td style="text-align:center;">
+30
 </td>
 </tr>
 <tr>
@@ -2250,7 +2131,33 @@ Not Rated
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="color: grey; font-weight: bold">As Told to MANOHLA DARGIS by LORD DARGIS </span>
+<span style="color: grey; font-weight: bold">AO SCOTT </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+13
+</td>
+<td style="text-align:center;">
+68
+</td>
+<td style="text-align:center;">
+115
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+57
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">AS TOLD TO MANOHLA DARGIS LORD DARGIS </span>
 </td>
 <td style="text-align:center;">
 0
@@ -2328,7 +2235,7 @@ Not Rated
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="color: grey; font-weight: bold">Bernard Weinraub </span>
+<span style="color: grey; font-weight: bold">BERNARD WEINRAUB </span>
 </td>
 <td style="text-align:center;">
 0
@@ -2406,344 +2313,6 @@ Not Rated
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="color: grey; font-weight: bold">By . A. O. SCOTT </span>
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-1
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: grey; font-weight: bold">By A. O. SCOTT </span>
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-1
-</td>
-<td style="text-align:center;">
-1
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-2
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: grey; font-weight: bold">By A.&amp;#160;O. SCOTT </span>
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-4
-</td>
-<td style="text-align:center;">
-5
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-4
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: grey; font-weight: bold">By A.&amp;nbsp;O. SCOTT </span>
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-2
-</td>
-<td style="text-align:center;">
-6
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-1
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: grey; font-weight: bold">By A.O. SCOTT </span>
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-4
-</td>
-<td style="text-align:center;">
-5
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-1
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: grey; font-weight: bold">By ANITA GATES </span>
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-1
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: grey; font-weight: bold">By DANA STEVENS </span>
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-1
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: grey; font-weight: bold">By JEANETTE CATSOULIS </span>
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-1
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: grey; font-weight: bold">By JEANNETTE CATSOULIS NATHAN LEE </span>
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-1
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: grey; font-weight: bold">By JEANNETTE CATSOULIS NATHAN LEE NEIL GENZLINGER LAURA KERN</span>
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-1
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: grey; font-weight: bold">By Manohla Dargis </span>
-</td>
-<td style="text-align:center;">
-1
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: grey; font-weight: bold">By MANOHLA DARGIS </span>
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-1
-</td>
-<td style="text-align:center;">
-2
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: grey; font-weight: bold">BY STEPHEN HOLDEN </span>
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-1
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
 <span style="color: grey; font-weight: bold">CANDICE FREDERICK </span>
 </td>
 <td style="text-align:center;">
@@ -2796,19 +2365,19 @@ Not Rated
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="color: grey; font-weight: bold">Caryn James </span>
+<span style="color: grey; font-weight: bold">CARYN JAMES </span>
 </td>
 <td style="text-align:center;">
-5
+8
 </td>
 <td style="text-align:center;">
-34
+40
 </td>
 <td style="text-align:center;">
-38
+46
 </td>
 <td style="text-align:center;">
-78
+100
 </td>
 <td style="text-align:center;">
 2
@@ -2817,33 +2386,7 @@ Not Rated
 0
 </td>
 <td style="text-align:center;">
-20
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: grey; font-weight: bold">CARYN JAMES </span>
-</td>
-<td style="text-align:center;">
-3
-</td>
-<td style="text-align:center;">
-6
-</td>
-<td style="text-align:center;">
-8
-</td>
-<td style="text-align:center;">
-22
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-14
+34
 </td>
 </tr>
 <tr>
@@ -2880,7 +2423,7 @@ Not Rated
 0
 </td>
 <td style="text-align:center;">
-1
+2
 </td>
 <td style="text-align:center;">
 0
@@ -2900,7 +2443,7 @@ Not Rated
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="color: grey; font-weight: bold">DANIEL M. GOLD </span>
+<span style="color: grey; font-weight: bold">DANIEL M GOLD </span>
 </td>
 <td style="text-align:center;">
 0
@@ -2926,7 +2469,7 @@ Not Rated
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="color: grey; font-weight: bold">Dave Kehr </span>
+<span style="color: grey; font-weight: bold">DAVE KEHR </span>
 </td>
 <td style="text-align:center;">
 5
@@ -2947,59 +2490,7 @@ Not Rated
 0
 </td>
 <td style="text-align:center;">
-19
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: grey; font-weight: bold">DAVE KEHR </span>
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-3
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: grey; font-weight: bold">DAVID DeWITT </span>
-</td>
-<td style="text-align:center;">
-1
-</td>
-<td style="text-align:center;">
-1
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-3
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-19
+22
 </td>
 </tr>
 <tr>
@@ -3007,16 +2498,16 @@ Not Rated
 <span style="color: grey; font-weight: bold">DAVID DEWITT </span>
 </td>
 <td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
+1
 </td>
 <td style="text-align:center;">
 1
 </td>
 <td style="text-align:center;">
-0
+1
+</td>
+<td style="text-align:center;">
+3
 </td>
 <td style="text-align:center;">
 0
@@ -3025,7 +2516,7 @@ Not Rated
 0
 </td>
 <td style="text-align:center;">
-0
+19
 </td>
 </tr>
 <tr>
@@ -3082,7 +2573,7 @@ Not Rated
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="color: grey; font-weight: bold">Elvis Mitchell </span>
+<span style="color: grey; font-weight: bold">ELVIS MITCHELL </span>
 </td>
 <td style="text-align:center;">
 7
@@ -3091,10 +2582,10 @@ Not Rated
 23
 </td>
 <td style="text-align:center;">
-104
+106
 </td>
 <td style="text-align:center;">
-120
+125
 </td>
 <td style="text-align:center;">
 1
@@ -3103,33 +2594,7 @@ Not Rated
 0
 </td>
 <td style="text-align:center;">
-19
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: grey; font-weight: bold">ELVIS MITCHELL </span>
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-2
-</td>
-<td style="text-align:center;">
-5
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-3
+22
 </td>
 </tr>
 <tr>
@@ -3160,7 +2625,7 @@ Not Rated
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="color: grey; font-weight: bold">FRANCINE PROSE; </span>
+<span style="color: grey; font-weight: bold">FRANCINE PROSE </span>
 </td>
 <td style="text-align:center;">
 0
@@ -3186,7 +2651,7 @@ Not Rated
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="color: grey; font-weight: bold">FRANCIS X. CLINES </span>
+<span style="color: grey; font-weight: bold">FRANCIS X CLINES </span>
 </td>
 <td style="text-align:center;">
 0
@@ -3264,7 +2729,7 @@ Not Rated
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="color: grey; font-weight: bold">HELEN T. VERONGOS </span>
+<span style="color: grey; font-weight: bold">HELEN T VERONGOS </span>
 </td>
 <td style="text-align:center;">
 0
@@ -3316,19 +2781,19 @@ Not Rated
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="color: grey; font-weight: bold">Janet Maslin </span>
+<span style="color: grey; font-weight: bold">JANET MASLIN </span>
 </td>
 <td style="text-align:center;">
-19
+23
 </td>
 <td style="text-align:center;">
-131
+157
 </td>
 <td style="text-align:center;">
-237
+269
 </td>
 <td style="text-align:center;">
-537
+627
 </td>
 <td style="text-align:center;">
 6
@@ -3337,33 +2802,7 @@ Not Rated
 1
 </td>
 <td style="text-align:center;">
-98
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: grey; font-weight: bold">JANET MASLIN </span>
-</td>
-<td style="text-align:center;">
-4
-</td>
-<td style="text-align:center;">
-26
-</td>
-<td style="text-align:center;">
-32
-</td>
-<td style="text-align:center;">
-90
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-30
+128
 </td>
 </tr>
 <tr>
@@ -3420,6 +2859,32 @@ Not Rated
 </tr>
 <tr>
 <td style="text-align:left;">
+<span style="color: grey; font-weight: bold">JEANETTE CATSOULIS </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <span style="color: grey; font-weight: bold">JEANNETTE CATSOULIS </span>
 </td>
 <td style="text-align:center;">
@@ -3442,6 +2907,58 @@ Not Rated
 </td>
 <td style="text-align:center;">
 405
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">JEANNETTE CATSOULIS NATHAN LEE </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">JEANNETTE CATSOULIS NATHAN LEE NEIL GENZLINGER LAURA KERN</span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
 </td>
 </tr>
 <tr>
@@ -3576,32 +3093,6 @@ Not Rated
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="color: grey; font-weight: bold">Jon Pareles </span>
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-1
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
 <span style="color: grey; font-weight: bold">JON PARELES </span>
 </td>
 <td style="text-align:center;">
@@ -3614,7 +3105,7 @@ Not Rated
 1
 </td>
 <td style="text-align:center;">
-0
+1
 </td>
 <td style="text-align:center;">
 0
@@ -3706,7 +3197,7 @@ Not Rated
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="color: grey; font-weight: bold">Kenneth C. Davis </span>
+<span style="color: grey; font-weight: bold">KENNETH C DAVIS </span>
 </td>
 <td style="text-align:center;">
 0
@@ -3764,32 +3255,6 @@ Not Rated
 0
 </td>
 <td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-1
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: grey; font-weight: bold">LAURA KERN </span>
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
 2
 </td>
 <td style="text-align:center;">
@@ -3805,33 +3270,7 @@ Not Rated
 0
 </td>
 <td style="text-align:center;">
-9
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: grey; font-weight: bold">Lawrence Van Gelder </span>
-</td>
-<td style="text-align:center;">
-9
-</td>
-<td style="text-align:center;">
-26
-</td>
-<td style="text-align:center;">
-31
-</td>
-<td style="text-align:center;">
-56
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-25
+10
 </td>
 </tr>
 <tr>
@@ -3839,25 +3278,25 @@ Not Rated
 <span style="color: grey; font-weight: bold">LAWRENCE VAN GELDER </span>
 </td>
 <td style="text-align:center;">
-2
-</td>
-<td style="text-align:center;">
-7
-</td>
-<td style="text-align:center;">
-4
-</td>
-<td style="text-align:center;">
-17
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
 11
+</td>
+<td style="text-align:center;">
+33
+</td>
+<td style="text-align:center;">
+35
+</td>
+<td style="text-align:center;">
+73
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+36
 </td>
 </tr>
 <tr>
@@ -3888,7 +3327,7 @@ Not Rated
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="color: grey; font-weight: bold">Linda Lee </span>
+<span style="color: grey; font-weight: bold">LINDA LEE </span>
 </td>
 <td style="text-align:center;">
 0
@@ -3917,68 +3356,16 @@ Not Rated
 <span style="color: grey; font-weight: bold">MANOHLA DARGIS </span>
 </td>
 <td style="text-align:center;">
-0
+12
 </td>
 <td style="text-align:center;">
-0
+65
 </td>
 <td style="text-align:center;">
-0
+271
 </td>
 <td style="text-align:center;">
-1
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: grey; font-weight: bold">Manohla Dargis </span>
-</td>
-<td style="text-align:center;">
-1
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-1
-</td>
-<td style="text-align:center;">
-3
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: grey; font-weight: bold">MANOHLA DARGIS </span>
-</td>
-<td style="text-align:center;">
-10
-</td>
-<td style="text-align:center;">
-64
-</td>
-<td style="text-align:center;">
-268
-</td>
-<td style="text-align:center;">
-370
+374
 </td>
 <td style="text-align:center;">
 1
@@ -4021,39 +3408,13 @@ Not Rated
 <span style="color: grey; font-weight: bold">MATT ZOLLER SEITZ </span>
 </td>
 <td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-1
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: grey; font-weight: bold">MATT ZOLLER SEITZ </span>
-</td>
-<td style="text-align:center;">
 1
 </td>
 <td style="text-align:center;">
 7
 </td>
 <td style="text-align:center;">
-12
+13
 </td>
 <td style="text-align:center;">
 18
@@ -4070,7 +3431,7 @@ Not Rated
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="color: grey; font-weight: bold">Michael Eric Dyson; </span>
+<span style="color: grey; font-weight: bold">MICHAEL ERIC DYSON </span>
 </td>
 <td style="text-align:center;">
 0
@@ -4304,7 +3665,7 @@ Not Rated
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="color: grey; font-weight: bold">Patricia S. McCormick </span>
+<span style="color: grey; font-weight: bold">PATRICIA S MCCORMICK </span>
 </td>
 <td style="text-align:center;">
 3
@@ -4356,7 +3717,7 @@ Not Rated
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="color: grey; font-weight: bold">Paul Goldberger </span>
+<span style="color: grey; font-weight: bold">PAUL GOLDBERGER </span>
 </td>
 <td style="text-align:center;">
 0
@@ -4382,7 +3743,7 @@ Not Rated
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="color: grey; font-weight: bold">Peter M. Nichols </span>
+<span style="color: grey; font-weight: bold">PETER M NICHOLS </span>
 </td>
 <td style="text-align:center;">
 0
@@ -4460,7 +3821,7 @@ Not Rated
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="color: grey; font-weight: bold">Roberta Smith </span>
+<span style="color: grey; font-weight: bold">ROBERTA SMITH </span>
 </td>
 <td style="text-align:center;">
 0
@@ -4486,7 +3847,7 @@ Not Rated
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="color: grey; font-weight: bold">SAMUEL G. FREEDMAN; </span>
+<span style="color: grey; font-weight: bold">SAMUEL G FREEDMAN </span>
 </td>
 <td style="text-align:center;">
 0
@@ -4538,7 +3899,7 @@ Not Rated
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="color: grey; font-weight: bold">SEAN T. COLLINS </span>
+<span style="color: grey; font-weight: bold">SEAN T COLLINS </span>
 </td>
 <td style="text-align:center;">
 0
@@ -4567,82 +3928,30 @@ Not Rated
 <span style="color: grey; font-weight: bold">STEPHEN HOLDEN </span>
 </td>
 <td style="text-align:center;">
-0
+32
+</td>
+<td style="text-align:center;">
+151
+</td>
+<td style="text-align:center;">
+310
+</td>
+<td style="text-align:center;">
+596
+</td>
+<td style="text-align:center;">
+5
 </td>
 <td style="text-align:center;">
 0
 </td>
 <td style="text-align:center;">
-1
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
+402
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="color: grey; font-weight: bold">Stephen Holden </span>
-</td>
-<td style="text-align:center;">
-21
-</td>
-<td style="text-align:center;">
-96
-</td>
-<td style="text-align:center;">
-162
-</td>
-<td style="text-align:center;">
-353
-</td>
-<td style="text-align:center;">
-4
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-136
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: grey; font-weight: bold">STEPHEN HOLDEN </span>
-</td>
-<td style="text-align:center;">
-11
-</td>
-<td style="text-align:center;">
-55
-</td>
-<td style="text-align:center;">
-147
-</td>
-<td style="text-align:center;">
-242
-</td>
-<td style="text-align:center;">
-1
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-266
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: grey; font-weight: bold">Suzanne O’Connor </span>
+<span style="color: grey; font-weight: bold">SUZANNE O’CONNOR </span>
 </td>
 <td style="text-align:center;">
 0
@@ -4746,19 +4055,19 @@ Not Rated
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="color: grey; font-weight: bold">Vincent Canby </span>
+<span style="color: grey; font-weight: bold">VINCENT CANBY </span>
 </td>
 <td style="text-align:center;">
 3
 </td>
 <td style="text-align:center;">
-31
+41
 </td>
 <td style="text-align:center;">
-67
+76
 </td>
 <td style="text-align:center;">
-114
+148
 </td>
 <td style="text-align:center;">
 2
@@ -4767,64 +4076,12 @@ Not Rated
 0
 </td>
 <td style="text-align:center;">
-18
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: grey; font-weight: bold">VIncent Canby </span>
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-1
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<span style="color: grey; font-weight: bold">VINCENT CANBY </span>
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-10
-</td>
-<td style="text-align:center;">
-8
-</td>
-<td style="text-align:center;">
 34
 </td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-16
-</td>
 </tr>
 <tr>
 <td style="text-align:left;">
-<span style="color: grey; font-weight: bold">Walter Goodman </span>
+<span style="color: grey; font-weight: bold">WALTER GOODMAN </span>
 </td>
 <td style="text-align:center;">
 0

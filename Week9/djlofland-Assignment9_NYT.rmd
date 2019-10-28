@@ -23,6 +23,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(forcats)
 library(jsonlite)
+library(formattable)
 
 # We will be working with the NYT Movies API's
 NYT_MOVIE_API_BASE <- "https://api.nytimes.com/svc/movies/v2"
@@ -154,10 +155,11 @@ critics_counts <- data_df2 %>%
   arrange(desc(review_count)) %>%
   top_n(10)
 
-critics_counts
+formattable(critics_counts,
+            align=c("l", "c"))
 ```
 
-## Top 10 Posting Critics  
+## Reviews by Critical & Rating  
 
 ```{r rating_by_critic}
 # How many reviews did critics post for each mpaa rating?
@@ -169,5 +171,9 @@ rating_counts <- data_df2 %>%
   select(results.byline, G, PG, `PG-13`, R, `NC-17`, X, `Not Rated`) %>%
   replace_na(list(G = 0,PG=0, `PG-13`=0, R=0, `NC-17`=0, X=0, `Not Rated`=0))
 
-rating_counts
+formattable(rating_counts,
+            align =c("l", "c", "c", "c", "c", "c", "c", "c"), 
+            list(`results.byline` = formatter(
+              "span", style = ~ style(color = "grey",font.weight = "bold")))
+            )
 ```

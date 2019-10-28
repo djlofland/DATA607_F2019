@@ -1638,12 +1638,12 @@ div.tocify {
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>knitr<span class="op">::</span>opts_chunk<span class="op">$</span><span class="kw">set</span>(<span class="dt">echo =</span> <span class="ot">TRUE</span>)</span>
 <span id="cb1-2"><a href="#cb1-2"></a></span>
 <span id="cb1-3"><a href="#cb1-3"></a><span class="kw">library</span>(tidyverse)</span></code></pre></div>
-<pre><code>## ── Attaching packages ─────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
+<pre><code>## ── Attaching packages ──────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
 <pre><code>## ✔ ggplot2 3.2.1     ✔ purrr   0.3.2
 ## ✔ tibble  2.1.3     ✔ dplyr   0.8.3
 ## ✔ tidyr   0.8.3     ✔ stringr 1.4.0
 ## ✔ readr   1.3.1     ✔ forcats 0.4.0</code></pre>
-<pre><code>## ── Conflicts ────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+<pre><code>## ── Conflicts ─────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
 ## ✖ dplyr::filter() masks stats::filter()
 ## ✖ dplyr::lag()    masks stats::lag()</code></pre>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">library</span>(forcats)</span>
@@ -1653,20 +1653,22 @@ div.tocify {
 <pre><code>## The following object is masked from &#39;package:purrr&#39;:
 ## 
 ##     flatten</code></pre>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="co"># We will be working with the NYT Movies API&#39;s</span></span>
-<span id="cb8-2"><a href="#cb8-2"></a>NYT_MOVIE_API_BASE &lt;-<span class="st"> &quot;https://api.nytimes.com/svc/movies/v2&quot;</span></span>
-<span id="cb8-3"><a href="#cb8-3"></a>NYT_ACTION_PICKS &lt;-<span class="st"> &quot;/reviews/picks.json?&quot;</span></span>
-<span id="cb8-4"><a href="#cb8-4"></a></span>
-<span id="cb8-5"><a href="#cb8-5"></a>NYT_ACTION_CRITIC &lt;-<span class="st"> &quot;/critics/A.%20O.%20Scott.json?&quot;</span></span>
-<span id="cb8-6"><a href="#cb8-6"></a>NYT_ACTION_CRITICS &lt;-<span class="st"> &quot;/critics/all.json?&quot;</span></span>
-<span id="cb8-7"><a href="#cb8-7"></a></span>
-<span id="cb8-8"><a href="#cb8-8"></a>NYT_ACTION_SEARCH &lt;-<span class="st"> &quot;/reviews/search.json?&quot;</span></span>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">library</span>(formattable)</span>
+<span id="cb8-2"><a href="#cb8-2"></a></span>
+<span id="cb8-3"><a href="#cb8-3"></a><span class="co"># We will be working with the NYT Movies API&#39;s</span></span>
+<span id="cb8-4"><a href="#cb8-4"></a>NYT_MOVIE_API_BASE &lt;-<span class="st"> &quot;https://api.nytimes.com/svc/movies/v2&quot;</span></span>
+<span id="cb8-5"><a href="#cb8-5"></a>NYT_ACTION_PICKS &lt;-<span class="st"> &quot;/reviews/picks.json?&quot;</span></span>
+<span id="cb8-6"><a href="#cb8-6"></a></span>
+<span id="cb8-7"><a href="#cb8-7"></a>NYT_ACTION_CRITIC &lt;-<span class="st"> &quot;/critics/A.%20O.%20Scott.json?&quot;</span></span>
+<span id="cb8-8"><a href="#cb8-8"></a>NYT_ACTION_CRITICS &lt;-<span class="st"> &quot;/critics/all.json?&quot;</span></span>
 <span id="cb8-9"><a href="#cb8-9"></a></span>
-<span id="cb8-10"><a href="#cb8-10"></a><span class="co"># Note that my NYT API Key is stored in my .Renviron file making it available as an envioronmental variable in any projects.</span></span>
-<span id="cb8-11"><a href="#cb8-11"></a>APIKEY &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="st">&quot;&amp;api-key=&quot;</span>, <span class="kw">Sys.getenv</span>(<span class="st">&quot;NYTIMES_APIKEY_D607&quot;</span>), <span class="st">&quot;&amp;&quot;</span>, <span class="dt">sep=</span><span class="st">&quot;&quot;</span>)</span>
-<span id="cb8-12"><a href="#cb8-12"></a></span>
-<span id="cb8-13"><a href="#cb8-13"></a><span class="co"># Local cache data file to use if available</span></span>
-<span id="cb8-14"><a href="#cb8-14"></a>local_cache_fn &lt;-<span class="st"> &#39;./data/reviews.csv&#39;</span></span></code></pre></div>
+<span id="cb8-10"><a href="#cb8-10"></a>NYT_ACTION_SEARCH &lt;-<span class="st"> &quot;/reviews/search.json?&quot;</span></span>
+<span id="cb8-11"><a href="#cb8-11"></a></span>
+<span id="cb8-12"><a href="#cb8-12"></a><span class="co"># Note that my NYT API Key is stored in my .Renviron file making it available as an envioronmental variable in any projects.</span></span>
+<span id="cb8-13"><a href="#cb8-13"></a>APIKEY &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="st">&quot;&amp;api-key=&quot;</span>, <span class="kw">Sys.getenv</span>(<span class="st">&quot;NYTIMES_APIKEY_D607&quot;</span>), <span class="st">&quot;&amp;&quot;</span>, <span class="dt">sep=</span><span class="st">&quot;&quot;</span>)</span>
+<span id="cb8-14"><a href="#cb8-14"></a></span>
+<span id="cb8-15"><a href="#cb8-15"></a><span class="co"># Local cache data file to use if available</span></span>
+<span id="cb8-16"><a href="#cb8-16"></a>local_cache_fn &lt;-<span class="st"> &#39;./data/reviews.csv&#39;</span></span></code></pre></div>
 </div>
 <div id="load-critics" class="section level1">
 <h1>Load Critics</h1>
@@ -1791,48 +1793,3115 @@ div.tocify {
 <span id="cb20-5"><a href="#cb20-5"></a><span class="st">  </span><span class="kw">arrange</span>(<span class="kw">desc</span>(review_count)) <span class="op">%&gt;%</span></span>
 <span id="cb20-6"><a href="#cb20-6"></a><span class="st">  </span><span class="kw">top_n</span>(<span class="dv">10</span>)</span></code></pre></div>
 <pre><code>## Selecting by review_count</code></pre>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>critics_counts</span></code></pre></div>
-<pre><code>## # A tibble: 10 x 2
-##    results.byline      review_count
-##    &lt;chr&gt;                      &lt;int&gt;
-##  1 Janet Maslin                1029
-##  2 MANOHLA DARGIS               841
-##  3 JEANNETTE CATSOULIS          774
-##  4 Stephen Holden               772
-##  5 A. O. SCOTT                  742
-##  6 STEPHEN HOLDEN               722
-##  7 GLENN KENNY                  374
-##  8 BEN KENIGSBERG               353
-##  9 NEIL GENZLINGER              339
-## 10 A. O. Scott                  321</code></pre>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a><span class="kw">formattable</span>(critics_counts,</span>
+<span id="cb22-2"><a href="#cb22-2"></a>            <span class="dt">align=</span><span class="kw">c</span>(<span class="st">&quot;l&quot;</span>, <span class="st">&quot;c&quot;</span>))</span></code></pre></div>
+<table class="table table-condensed">
+<thead>
+<tr>
+<th style="text-align:left;">
+results.byline
+</th>
+<th style="text-align:center;">
+review_count
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Janet Maslin
+</td>
+<td style="text-align:center;">
+1029
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MANOHLA DARGIS
+</td>
+<td style="text-align:center;">
+841
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+JEANNETTE CATSOULIS
+</td>
+<td style="text-align:center;">
+774
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Stephen Holden
+</td>
+<td style="text-align:center;">
+772
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+A. O. SCOTT
+</td>
+<td style="text-align:center;">
+742
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+STEPHEN HOLDEN
+</td>
+<td style="text-align:center;">
+722
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+GLENN KENNY
+</td>
+<td style="text-align:center;">
+374
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BEN KENIGSBERG
+</td>
+<td style="text-align:center;">
+353
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NEIL GENZLINGER
+</td>
+<td style="text-align:center;">
+339
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+A. O. Scott
+</td>
+<td style="text-align:center;">
+321
+</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div id="top-10-posting-critics-1" class="section level2">
-<h2>Top 10 Posting Critics</h2>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a><span class="co"># How many reviews did critics post for each mpaa rating?</span></span>
-<span id="cb24-2"><a href="#cb24-2"></a>rating_counts &lt;-<span class="st"> </span>data_df2 <span class="op">%&gt;%</span></span>
-<span id="cb24-3"><a href="#cb24-3"></a><span class="st">  </span><span class="kw">group_by</span>(results.byline, results.mpaa_rating) <span class="op">%&gt;%</span></span>
-<span id="cb24-4"><a href="#cb24-4"></a><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">rating_count =</span> <span class="kw">length</span>(results.mpaa_rating)) <span class="op">%&gt;%</span></span>
-<span id="cb24-5"><a href="#cb24-5"></a><span class="st">  </span><span class="kw">arrange</span>(results.byline) <span class="op">%&gt;%</span></span>
-<span id="cb24-6"><a href="#cb24-6"></a><span class="st">  </span><span class="kw">spread</span>(results.mpaa_rating, rating_count) <span class="op">%&gt;%</span></span>
-<span id="cb24-7"><a href="#cb24-7"></a><span class="st">  </span><span class="kw">select</span>(results.byline, G, PG, <span class="st">`</span><span class="dt">PG-13</span><span class="st">`</span>, R, <span class="st">`</span><span class="dt">NC-17</span><span class="st">`</span>, X, <span class="st">`</span><span class="dt">Not Rated</span><span class="st">`</span>) <span class="op">%&gt;%</span></span>
-<span id="cb24-8"><a href="#cb24-8"></a><span class="st">  </span><span class="kw">replace_na</span>(<span class="kw">list</span>(<span class="dt">G =</span> <span class="dv">0</span>,<span class="dt">PG=</span><span class="dv">0</span>, <span class="st">`</span><span class="dt">PG-13</span><span class="st">`</span>=<span class="dv">0</span>, <span class="dt">R=</span><span class="dv">0</span>, <span class="st">`</span><span class="dt">NC-17</span><span class="st">`</span>=<span class="dv">0</span>, <span class="dt">X=</span><span class="dv">0</span>, <span class="st">`</span><span class="dt">Not Rated</span><span class="st">`</span>=<span class="dv">0</span>))</span>
-<span id="cb24-9"><a href="#cb24-9"></a></span>
-<span id="cb24-10"><a href="#cb24-10"></a>rating_counts</span></code></pre></div>
-<pre><code>## # A tibble: 114 x 8
-## # Groups:   results.byline [114]
-##    results.byline       G    PG `PG-13`     R `NC-17`     X `Not Rated`
-##    &lt;chr&gt;            &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;       &lt;dbl&gt;
-##  1 A. O. Scott          9    25     117   134       1     0          35
-##  2 A. O. SCOTT          9    79     251   302       0     0         101
-##  3 A.&amp;#160;O. SCOTT     0     0       2     1       0     0           1
-##  4 A.O. SCOTT           0    13      56    98       0     0          50
-##  5 AISHA HARRIS         0     1       3     4       0     0           5
-##  6 ANDREA HIGBIE        0     1       0     0       0     0           0
-##  7 ANDREW GELLER        0     0       0     1       0     0           0
-##  8 Andy Webster         0     0       1     0       0     0           0
-##  9 ANDY WEBSTER         3    22      40    45       0     0         123
-## 10 Anita Gates          6     7       6    13       0     0          10
-## # … with 104 more rows</code></pre>
+<div id="reviews-by-critical-rating" class="section level2">
+<h2>Reviews by Critical &amp; Rating</h2>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="co"># How many reviews did critics post for each mpaa rating?</span></span>
+<span id="cb23-2"><a href="#cb23-2"></a>rating_counts &lt;-<span class="st"> </span>data_df2 <span class="op">%&gt;%</span></span>
+<span id="cb23-3"><a href="#cb23-3"></a><span class="st">  </span><span class="kw">group_by</span>(results.byline, results.mpaa_rating) <span class="op">%&gt;%</span></span>
+<span id="cb23-4"><a href="#cb23-4"></a><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">rating_count =</span> <span class="kw">length</span>(results.mpaa_rating)) <span class="op">%&gt;%</span></span>
+<span id="cb23-5"><a href="#cb23-5"></a><span class="st">  </span><span class="kw">arrange</span>(results.byline) <span class="op">%&gt;%</span></span>
+<span id="cb23-6"><a href="#cb23-6"></a><span class="st">  </span><span class="kw">spread</span>(results.mpaa_rating, rating_count) <span class="op">%&gt;%</span></span>
+<span id="cb23-7"><a href="#cb23-7"></a><span class="st">  </span><span class="kw">select</span>(results.byline, G, PG, <span class="st">`</span><span class="dt">PG-13</span><span class="st">`</span>, R, <span class="st">`</span><span class="dt">NC-17</span><span class="st">`</span>, X, <span class="st">`</span><span class="dt">Not Rated</span><span class="st">`</span>) <span class="op">%&gt;%</span></span>
+<span id="cb23-8"><a href="#cb23-8"></a><span class="st">  </span><span class="kw">replace_na</span>(<span class="kw">list</span>(<span class="dt">G =</span> <span class="dv">0</span>,<span class="dt">PG=</span><span class="dv">0</span>, <span class="st">`</span><span class="dt">PG-13</span><span class="st">`</span>=<span class="dv">0</span>, <span class="dt">R=</span><span class="dv">0</span>, <span class="st">`</span><span class="dt">NC-17</span><span class="st">`</span>=<span class="dv">0</span>, <span class="dt">X=</span><span class="dv">0</span>, <span class="st">`</span><span class="dt">Not Rated</span><span class="st">`</span>=<span class="dv">0</span>))</span>
+<span id="cb23-9"><a href="#cb23-9"></a></span>
+<span id="cb23-10"><a href="#cb23-10"></a><span class="kw">formattable</span>(rating_counts,</span>
+<span id="cb23-11"><a href="#cb23-11"></a>            <span class="dt">align =</span><span class="kw">c</span>(<span class="st">&quot;l&quot;</span>, <span class="st">&quot;c&quot;</span>, <span class="st">&quot;c&quot;</span>, <span class="st">&quot;c&quot;</span>, <span class="st">&quot;c&quot;</span>, <span class="st">&quot;c&quot;</span>, <span class="st">&quot;c&quot;</span>, <span class="st">&quot;c&quot;</span>), </span>
+<span id="cb23-12"><a href="#cb23-12"></a>            <span class="kw">list</span>(<span class="st">`</span><span class="dt">results.byline</span><span class="st">`</span> =<span class="st"> </span><span class="kw">formatter</span>(</span>
+<span id="cb23-13"><a href="#cb23-13"></a>              <span class="st">&quot;span&quot;</span>, <span class="dt">style =</span> <span class="op">~</span><span class="st"> </span><span class="kw">style</span>(<span class="dt">color =</span> <span class="st">&quot;grey&quot;</span>,<span class="dt">font.weight =</span> <span class="st">&quot;bold&quot;</span>)))</span>
+<span id="cb23-14"><a href="#cb23-14"></a>            )</span></code></pre></div>
+<table class="table table-condensed">
+<thead>
+<tr>
+<th style="text-align:left;">
+results.byline
+</th>
+<th style="text-align:center;">
+G
+</th>
+<th style="text-align:center;">
+PG
+</th>
+<th style="text-align:center;">
+PG-13
+</th>
+<th style="text-align:center;">
+R
+</th>
+<th style="text-align:center;">
+NC-17
+</th>
+<th style="text-align:center;">
+X
+</th>
+<th style="text-align:center;">
+Not Rated
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">A. O. Scott </span>
+</td>
+<td style="text-align:center;">
+9
+</td>
+<td style="text-align:center;">
+25
+</td>
+<td style="text-align:center;">
+117
+</td>
+<td style="text-align:center;">
+134
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+35
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">A. O. SCOTT </span>
+</td>
+<td style="text-align:center;">
+9
+</td>
+<td style="text-align:center;">
+79
+</td>
+<td style="text-align:center;">
+251
+</td>
+<td style="text-align:center;">
+302
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+101
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">A.&amp;#160;O. SCOTT </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+2
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">A.O. SCOTT </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+13
+</td>
+<td style="text-align:center;">
+56
+</td>
+<td style="text-align:center;">
+98
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+50
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">AISHA HARRIS </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+3
+</td>
+<td style="text-align:center;">
+4
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">ANDREA HIGBIE </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">ANDREW GELLER </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">Andy Webster </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">ANDY WEBSTER </span>
+</td>
+<td style="text-align:center;">
+3
+</td>
+<td style="text-align:center;">
+22
+</td>
+<td style="text-align:center;">
+40
+</td>
+<td style="text-align:center;">
+45
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+123
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">Anita Gates </span>
+</td>
+<td style="text-align:center;">
+6
+</td>
+<td style="text-align:center;">
+7
+</td>
+<td style="text-align:center;">
+6
+</td>
+<td style="text-align:center;">
+13
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+10
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">ANITA GATES </span>
+</td>
+<td style="text-align:center;">
+3
+</td>
+<td style="text-align:center;">
+3
+</td>
+<td style="text-align:center;">
+3
+</td>
+<td style="text-align:center;">
+9
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+20
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">ANNA KISSELGOFF </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">As Told to MANOHLA DARGIS by LORD DARGIS </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">BEN KENIGSBERG </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+24
+</td>
+<td style="text-align:center;">
+37
+</td>
+<td style="text-align:center;">
+73
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+218
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">BERNADINE MORRIS </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">Bernard Weinraub </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">BILGE EBIRI </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+6
+</td>
+<td style="text-align:center;">
+3
+</td>
+<td style="text-align:center;">
+4
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+13
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">BRIAN SEIBERT </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">By . A. O. SCOTT </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">By A. O. SCOTT </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">By A.&amp;#160;O. SCOTT </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+4
+</td>
+<td style="text-align:center;">
+5
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">By A.&amp;nbsp;O. SCOTT </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+2
+</td>
+<td style="text-align:center;">
+6
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">By A.O. SCOTT </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+4
+</td>
+<td style="text-align:center;">
+5
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">By ANITA GATES </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">By DANA STEVENS </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">By JEANETTE CATSOULIS </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">By JEANNETTE CATSOULIS NATHAN LEE </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">By JEANNETTE CATSOULIS NATHAN LEE NEIL GENZLINGER LAURA KERN</span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">By Manohla Dargis </span>
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">By MANOHLA DARGIS </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+2
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">BY STEPHEN HOLDEN </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">CANDICE FREDERICK </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">CARINA CHOCANO </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">Caryn James </span>
+</td>
+<td style="text-align:center;">
+5
+</td>
+<td style="text-align:center;">
+34
+</td>
+<td style="text-align:center;">
+38
+</td>
+<td style="text-align:center;">
+78
+</td>
+<td style="text-align:center;">
+2
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+20
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">CARYN JAMES </span>
+</td>
+<td style="text-align:center;">
+3
+</td>
+<td style="text-align:center;">
+6
+</td>
+<td style="text-align:center;">
+8
+</td>
+<td style="text-align:center;">
+22
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+14
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">CHRIS VOGNAR </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">DANA STEVENS </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">DANIEL M. GOLD </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+2
+</td>
+<td style="text-align:center;">
+2
+</td>
+<td style="text-align:center;">
+8
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+57
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">Dave Kehr </span>
+</td>
+<td style="text-align:center;">
+5
+</td>
+<td style="text-align:center;">
+20
+</td>
+<td style="text-align:center;">
+17
+</td>
+<td style="text-align:center;">
+27
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+19
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">DAVE KEHR </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">DAVID DeWITT </span>
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+3
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+19
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">DAVID DEWITT </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">EDWARD ROTHSTEIN </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">ELISABETH VINCENTELLI </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">Elvis Mitchell </span>
+</td>
+<td style="text-align:center;">
+7
+</td>
+<td style="text-align:center;">
+23
+</td>
+<td style="text-align:center;">
+104
+</td>
+<td style="text-align:center;">
+120
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+19
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">ELVIS MITCHELL </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+2
+</td>
+<td style="text-align:center;">
+5
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">FLETCHER ROBERTS </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">FRANCINE PROSE; </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">FRANCIS X. CLINES </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">GIA KOURLAS </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">GLENN KENNY </span>
+</td>
+<td style="text-align:center;">
+3
+</td>
+<td style="text-align:center;">
+23
+</td>
+<td style="text-align:center;">
+54
+</td>
+<td style="text-align:center;">
+95
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+199
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">HELEN T. VERONGOS </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+5
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+27
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">JAMIE DIAMOND </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">Janet Maslin </span>
+</td>
+<td style="text-align:center;">
+19
+</td>
+<td style="text-align:center;">
+131
+</td>
+<td style="text-align:center;">
+237
+</td>
+<td style="text-align:center;">
+537
+</td>
+<td style="text-align:center;">
+6
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+98
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">JANET MASLIN </span>
+</td>
+<td style="text-align:center;">
+4
+</td>
+<td style="text-align:center;">
+26
+</td>
+<td style="text-align:center;">
+32
+</td>
+<td style="text-align:center;">
+90
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+30
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">JASON BAILEY </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">JASON ZINOMAN </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+2
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+10
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">JEANNETTE CATSOULIS </span>
+</td>
+<td style="text-align:center;">
+8
+</td>
+<td style="text-align:center;">
+41
+</td>
+<td style="text-align:center;">
+120
+</td>
+<td style="text-align:center;">
+199
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+405
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">JENNIFER DUNNING </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">JENNIFER SZALAI </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+2
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">JOHN ANDERSON </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">JOHN WILLIAMS </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">JON CARAMANICA </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+2
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">Jon Pareles </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">JON PARELES </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">JULIE LEW </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">KAREN HAN </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">KEN JAWOROWSKI </span>
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+7
+</td>
+<td style="text-align:center;">
+10
+</td>
+<td style="text-align:center;">
+11
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+79
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">Kenneth C. Davis </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">KYLE TURNER </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">LAURA KERN </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">LAURA KERN </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+2
+</td>
+<td style="text-align:center;">
+3
+</td>
+<td style="text-align:center;">
+7
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+9
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">Lawrence Van Gelder </span>
+</td>
+<td style="text-align:center;">
+9
+</td>
+<td style="text-align:center;">
+26
+</td>
+<td style="text-align:center;">
+31
+</td>
+<td style="text-align:center;">
+56
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+25
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">LAWRENCE VAN GELDER </span>
+</td>
+<td style="text-align:center;">
+2
+</td>
+<td style="text-align:center;">
+7
+</td>
+<td style="text-align:center;">
+4
+</td>
+<td style="text-align:center;">
+17
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+11
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">LAWRNENCE VAN GELDER </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">Linda Lee </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+2
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">MANOHLA DARGIS </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">Manohla Dargis </span>
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+3
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">MANOHLA DARGIS </span>
+</td>
+<td style="text-align:center;">
+10
+</td>
+<td style="text-align:center;">
+64
+</td>
+<td style="text-align:center;">
+268
+</td>
+<td style="text-align:center;">
+370
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+128
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">MARTIN TSAI </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">MATT ZOLLER SEITZ </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">MATT ZOLLER SEITZ </span>
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+7
+</td>
+<td style="text-align:center;">
+12
+</td>
+<td style="text-align:center;">
+18
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+22
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">Michael Eric Dyson; </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">MICHAEL KIMMELMAN </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">MIKE HALE </span>
+</td>
+<td style="text-align:center;">
+2
+</td>
+<td style="text-align:center;">
+12
+</td>
+<td style="text-align:center;">
+13
+</td>
+<td style="text-align:center;">
+17
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+48
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">MIRIAM BALE </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+4
+</td>
+<td style="text-align:center;">
+2
+</td>
+<td style="text-align:center;">
+5
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+15
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">MONICA CASTILLO </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+3
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+9
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">NATHAN LEE </span>
+</td>
+<td style="text-align:center;">
+2
+</td>
+<td style="text-align:center;">
+5
+</td>
+<td style="text-align:center;">
+18
+</td>
+<td style="text-align:center;">
+12
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+39
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">NEIL GENZLINGER </span>
+</td>
+<td style="text-align:center;">
+13
+</td>
+<td style="text-align:center;">
+40
+</td>
+<td style="text-align:center;">
+56
+</td>
+<td style="text-align:center;">
+71
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+159
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">NICOLAS RAPOLD </span>
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+12
+</td>
+<td style="text-align:center;">
+21
+</td>
+<td style="text-align:center;">
+24
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+96
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">NICOLE HERRINGTON </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+5
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+14
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">Patricia S. McCormick </span>
+</td>
+<td style="text-align:center;">
+3
+</td>
+<td style="text-align:center;">
+5
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+2
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">PAUL BRUNICK </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">Paul Goldberger </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">Peter M. Nichols </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">PHILLIP LOPATE </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">RACHEL SALTZ </span>
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+2
+</td>
+<td style="text-align:center;">
+12
+</td>
+<td style="text-align:center;">
+4
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+72
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">Roberta Smith </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">SAMUEL G. FREEDMAN; </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">SCOTT TOBIAS </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">SEAN T. COLLINS </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">STEPHEN HOLDEN </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">Stephen Holden </span>
+</td>
+<td style="text-align:center;">
+21
+</td>
+<td style="text-align:center;">
+96
+</td>
+<td style="text-align:center;">
+162
+</td>
+<td style="text-align:center;">
+353
+</td>
+<td style="text-align:center;">
+4
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+136
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">STEPHEN HOLDEN </span>
+</td>
+<td style="text-align:center;">
+11
+</td>
+<td style="text-align:center;">
+55
+</td>
+<td style="text-align:center;">
+147
+</td>
+<td style="text-align:center;">
+242
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+266
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">Suzanne O’Connor </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+2
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">TEO BUGBEE </span>
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+9
+</td>
+<td style="text-align:center;">
+3
+</td>
+<td style="text-align:center;">
+15
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+45
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">THE NEW YORK TIMES </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">VICTOR NAVASKY </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">Vincent Canby </span>
+</td>
+<td style="text-align:center;">
+3
+</td>
+<td style="text-align:center;">
+31
+</td>
+<td style="text-align:center;">
+67
+</td>
+<td style="text-align:center;">
+114
+</td>
+<td style="text-align:center;">
+2
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+18
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">VIncent Canby </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">VINCENT CANBY </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+10
+</td>
+<td style="text-align:center;">
+8
+</td>
+<td style="text-align:center;">
+34
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+16
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">Walter Goodman </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">WESLEY MORRIS </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+4
+</td>
+<td style="text-align:center;">
+4
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">WILLIAM GRIMES </span>
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 

@@ -1,6 +1,6 @@
 ---
 title: 'DATA607 Assignment 9'
-subtitle: 'NYT - Web API's'
+subtitle: 'NYT - Web APIs'
 author: 'Donny Lofland'
 data: '10/26/2019'
 output:
@@ -15,7 +15,7 @@ output:
 
 # SETUP
 
-Source files: [https://github.com/djlofland/DATA607_F2019/tree/master/Assignment9](https://github.com/djlofland/DATA607_F2019/tree/master/Assignment9)
+Source files: [https://github.com/djlofland/DATA607_F2019/tree/master/Week9](https://github.com/djlofland/DATA607_F2019/tree/master/Week9)
 
 ```{r setup, eval=TRUE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -25,7 +25,6 @@ library(forcats)
 library(jsonlite)
 
 # We will be working with the NYT Movies API's
-
 NYT_MOVIE_API_BASE <- "https://api.nytimes.com/svc/movies/v2"
 NYT_ACTION_PICKS <- "/reviews/picks.json?"
 
@@ -36,7 +35,9 @@ NYT_ACTION_SEARCH <- "/reviews/search.json?"
 
 # Note that my NYT API Key is stored in my .Renviron file making it available as an envioronmental variable in any projects.
 APIKEY <- paste("&api-key=", Sys.getenv("NYTIMES_APIKEY_D607"), "&", sep="")
-print(APIKEY)
+
+# Local cache data file to use if available
+local_cache_fn <- './data/reviews.csv'
 ```
 
 # Load Critics
@@ -44,7 +45,7 @@ print(APIKEY)
 We will be working with the NYT Movies API's
 
 ```{r}
-url <- paste(NYT_MOVIE_API_BASE,NYT_ACTION_CRITICS, APIKEY, sep="")
+url <- paste(NYT_MOVIE_API_BASE, NYT_ACTION_CRITICS, APIKEY, sep="")
 print(url)
 
 critics <- fromJSON(url, flatten = TRUE) %>% 
@@ -67,13 +68,12 @@ movie_picks <- fromJSON(url, flatten = TRUE) %>%
 
 We will be working with the NYT Movies API's
 
-```{r}
+```{r load_reviews}
 # Check if we have a local copy of the data available to load
-local_cache_fn <- './data/reviews.csv'
 isCacheFound <- FALSE
 
 # Check whether we previously downloaded the review data from NYT API.  If found, we will used the cached copy.  If not found, then we'll kick off job to pull the data from NYT (note: this takes a while)
-if(file.exists('./data/reviews.csv')) {
+if(file.exists(local_cache_fn)) {
   msg <- paste('Found cached copy: ', local_cache_fn, sep='')
   isCacheFound <- TRUE
 }
@@ -121,20 +121,35 @@ if(!isCacheFound) {
   
   # Cache the processed as CSV for future
   write.csv(data_df, local_cache_fn, row.names=FALSE, na="")
+  
+} else {
+  # Now load the data from local cache CSV
+  data_df <- read_csv(local_cache_fn, col_names = TRUE)
+  isDataLoaded <- TRUE
+  msg <- 'Cached CSV data loaded.'
 }
-
-# Now load the data from local cache CSV
-data_df <- read_csv(local_cache_fn, col_names = TRUE)
-isDataLoaded <- TRUE
-msg <- 'Cached CSV data loaded.'
-
 ```
 
-```{r}
-reviews
+## Cleanup Reviews  
 
-# Combine all the Movie Review result pages into a single dataframe
-all <- data.table::rbindlist(reviews)
-all
+```{r analysis}
+# drop rows with missing dates
+data_df2 <- data_df %>% 
+  drop_na(results.publication_date, results.opening_date, results.date_updated)
+```
+
+# Analysis
+
+## Top 10 Posting Critics  
+
+```{r top_10_critics}
+# drop rows with missing dates
+critics_counts <- data_df2 %>%
+  group_by(results.byline) %>%
+  summarize(review_count = length(results.byline)) %>%
+  arrange(desc(review_count)) %>%
+  top_n(10)
+
+critics_counts
 ```
 

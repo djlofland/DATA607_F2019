@@ -1,0 +1,89 @@
+---
+title: "DT 607 Assignment 12"
+author: "Donny Lofland"
+date: "12/1/2019"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+Sys.setlocale("LC_ALL", "C")
+
+library(tidyverse)
+library(mongolite)   # library to interact with MongoDB
+library(RMySQL)      # Older MysQL library (note: I could NOT get the RMariaDB lib to work)
+```
+
+Source files: [https://github.com/djlofland/DATA607_F2019/tree/master/Assignment12](https://github.com/djlofland/DATA607_F2019/tree/master/Assignment12)
+
+# Assignment
+
+For this assignment, you should take information from a relational database and migrate it to a NoSQL database of your own choosing.
+
+For the relational database, you might use the flights database, the tb database, the "data skills" database your team created for Project 3, or another database of your own choosing or creation.
+
+For the NoSQL database, you may use MongoDB (which we introduced in week 7), Neo4j, or another NoSQL database of your choosing.
+
+Your migration process needs to be reproducible.  R code is encouraged, but not required.  You should also briefly describe the advantages and disadvantages of storing the data in a relational database vs. your NoSQL database.
+
+## Load data into/from MySQL
+
+```{r mysql, eval=TRUE}
+# helper function to get SQL
+getSQL <- function(filepath) {
+  con = file(filepath, "r")
+  sql.string <- ""
+
+  while (TRUE) {
+    line <- readLines(con, n = 1)
+
+    if ( length(line) == 0 ) {
+      break
+    }
+
+    sql.string <- paste(sql.string, line)
+  }
+
+  close(con)
+  return(sql.string)
+}
+
+# Connect to our MySQL DB
+con <- dbConnect(RMySQL::MySQL(), user=Sys.getenv("MYSQL_USER"), password=Sys.getenv("MYSQL_PASSWORD"), host=Sys.getenv("MYSQL_HOST"))
+
+# Attempt to connect to movie_reviews DB, Create it if it's missing
+result = tryCatch({
+    res <- dbSendQuery(con, 'USE movie_reviews;')
+}, error = function(e) {
+    res <- dbSendQuery(con, 'CREATE DATABASE movie_reviews;')
+})
+
+# Create the movies table and load movies
+movies_sql <- getSQL('sql/movies.sql')
+dbSendQuery(con, movies_sql)
+
+# Load the list of movies (we need this to map MovieName's and MovieID's)
+sql <- "SELECT MovieID, MovieName FROM movies;"
+res <- dbSendQuery(con, sql)
+
+movie_options <- dbFetch(res)
+movie_options
+```
+
+## Load movies into MongoDB
+```{r mongo, eval = FALSE}
+movies_mdb = mongo(collection = "movies", db = "movies_db") # create connection, database and collection
+
+# insert the movies into the collection
+movies_mdb$insert(movie_options)
+
+# verify how many records were added to the collection
+movies_mdb$count()
+
+# view the first entry
+movies_mdb$iterate()$one()
+```
+
